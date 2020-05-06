@@ -1,17 +1,15 @@
 %{
   // Autor: Diego Enrique Fontan Lorenzo
 
-  /** Practica 1
-
-    En esta entrega he intentado implementar varios de
-    los conocimientos vistos en clase.
-    Hay casos donde el problema se puede abordar de varias maneras,
-    como en los comentarios o cadenas multiliea, por lo que he usado
-    un metodo distinto para solucionarlo en cada uno de ellos.
-  */
+  #include <stdio.h>
+  #include <string.h>
+  #include "simple.tab.h"
 
   void logging(char * type)
   { fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
+
+  void ignorecase()
+  { for(char *p = yytext; *p; ++p) *p = *p>0x40 && *p<0x5b ? *p|0x60 : *p; }
 %}
 
 %option yylineno
@@ -53,23 +51,35 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
-{string}                            logging("cadena");
-\'{character}\'                     logging("caracter");
+{string}                            { logging("cadena"); return(CTC_CADENA); }
+\'{character}\'                     { logging("caracter"); return(CTC_CARACTER); }
 {comment}|[\r\n\t\b ]               ;
 {commentbgn}                        BEGIN(commentml);
 <commentml>.|\n                     ;
 <commentml>{commentend}             BEGIN(INITIAL);
-{b8}+|{digit}+|{b16}+               logging("ctc entera");
-{octal}|{decimal}|{hexadecimal}     logging("ctc real");
-{delimiter}                         logging("delimitador");
-{operator}                          logging("operador");
-{ickeyword}                         logging("palabra reservada");
-{identifier}                        logging("identificador");
+{b8}+|{digit}+|{b16}+               { logging("ctc entera"); return(CTC_ENTERA); }
+{octal}|{decimal}|{hexadecimal}     { logging("ctc real"); return(CTC_REAL); }
+{delimiter}                         { logging("delimitador");
+                                      if(strcmp(yytext, ";") == 0) return(PUNTO_COMA);
+                                    }
+{operator}                          { logging("operador");
+                                      if(strcmp(yytext, "::") == 0) return(CUATRO_PUNTOS);
+                                    }
+{ickeyword}                         { logging("palabra reservada");
+                                      ignorecase();
+                                      if(strcmp(yytext, "como") == 0) return(COMO);
+                                      else if(strcmp(yytext, "fin") == 0) return(FIN);
+                                      else if(strcmp(yytext, "importar") == 0) return(IMPORTAR);
+                                      else if(strcmp(yytext, "libreria") == 0) return(LIBRERIA);
+                                      else if(strcmp(yytext, "programa") == 0) return(PROGRAMA);
+                                    }
+{identifier}                        { logging("identificador"); return(IDENTIFICADOR); }
 
 .                                   { logging("ERROR: caracter incorrecto"); }
 
 %%
 
+/*
 int yywrap() { return(1); }
 
 int main(int argc, char *argv[]) {
@@ -87,3 +97,4 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+*/
