@@ -71,7 +71,8 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {b8}+|{digit}+|{b16}+               { logging("ctc entera"); return(CTC_ENTERA); }
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real"); return(CTC_REAL); }
 {delimiter}                         { logging("delimitador");
-                                      if(strcmp(yytext, ";") == 0) return(PUNTO_COMA);
+                                      if(strcmp(yytext, ",") == 0) return(COMA);
+                                      else if(strcmp(yytext, ";") == 0) return(PUNTO_COMA);
                                     }
 {operator}                          { logging("operador");
                                       if(strcmp(yytext, "::") == 0) return(CUATRO_PUNTOS);

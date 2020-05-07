@@ -12,7 +12,7 @@
 
 %token PROGRAMA FIN
 %token DE COMO EXPORTAR IMPORTAR LIBRERIA
-%token CUATRO_PUNTOS PUNTO_COMA
+%token COMA CUATRO_PUNTOS PUNTO_COMA
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL
 
@@ -33,7 +33,7 @@ codigo_libreria     : importar exportar
                     | importar
                     ;
 
-exportar            : EXPORTAR IDENTIFICADOR PUNTO_COMA
+exportar            : EXPORTAR ids PUNTO_COMA
 importar            : importar libreria PUNTO_COMA
                     | libreria PUNTO_COMA
                     ;
@@ -42,6 +42,10 @@ libreria            : DE LIBRERIA nombre_libreria IMPORTAR IDENTIFICADOR
                     | IMPORTAR LIBRERIA nombre_libreria
                     ;
 nombre_libreria     : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
+                    | IDENTIFICADOR
+                    ;
+
+ids                 : IDENTIFICADOR COMA ids
                     | IDENTIFICADOR
                     ;
 
