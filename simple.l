@@ -5,10 +5,10 @@
   #include <string.h>
   #include "simple.tab.h"
 
-  const int debug = 1;
+  extern int enabledlogging;
 
   void logging(char * type)
-  { if(debug) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
+  { if(enabledlogging) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
 
   void ignorecase()
   { for(char *p = yytext; *p; ++p) *p = *p>0x60 && *p<0x7b ? *p - 0x20 : *p; }

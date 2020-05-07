@@ -8,5 +8,6 @@ libreria test;
   tipo kiko es entero;
 
   a : constante entero := pueblo;
+  a : constante booleano := verdadero;
   tipo kike es booleano corto rango 1 .. 10;
 fin

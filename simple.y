@@ -1,10 +1,14 @@
 %{
   #include <stdio.h>
+  #include <stdlib.h>
   #include <string.h>
 
+  int enabledlogging;
   int yyerror(char * s);
+  
   extern FILE *yyin;
   extern int yylex();
+  extern int yylineno;
   extern char * yytext;
 
   #define YYDEBUG 1
@@ -66,8 +70,9 @@ nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
                       | IDENTIFICADOR
                       ;
 
+/************************* DECLARACIÓN DE OBJETOS *************************/
 
-declaracion_objeto    : ids DOS_PUNTOS_V CONSTANTE tipo_basico ASIGNACION IDENTIFICADOR PUNTO_COMA
+declaracion_objeto    : ids DOS_PUNTOS_V CONSTANTE tipo_basico ASIGNACION expresion PUNTO_COMA
                       ;
 
 /************************** DECLARACIÓN DE TIPOS **************************/
@@ -100,6 +105,12 @@ rango                 : RANGO numerico DOS_PUNTOS_H numerico DOS_PUNTOS_H numeri
                       | RANGO numerico DOS_PUNTOS_H numerico
                       ;
 
+/****************************** EXPRESIONES *******************************/
+
+expresion             : literal
+                      | IDENTIFICADOR
+                      ;
+
 /******************************* PRIMARIOS ********************************/
 
 ids                   : IDENTIFICADOR COMA ids
@@ -118,32 +129,40 @@ literal               : VERDADERO
 %%
 
 /*
-%token ABSTRACTO BOOLEANO BUCLE CARACTER CASOS CLASE COMO CONSTANTE CONSTRUCTOR CORTO
-%token CUANDO DE DESCENDENTE DESTRUCTOR DEVOLVER DICCIONARIO EN ENTERO ENTONCES
-%token ENUMERACION ES ESPECIFICO EXCEPCION EXPORTAR FALSO FIN FINAL FINALMENTE GENERICO
-%token IMPORTAR LARGO LANZA LIBRERIA LISTA MIENTRAS OBJETO OTRO PARA PRINCIPIO PRIVADO
-%token PROGRAMA PROTEGIDO PRUEBA PUBLICO RANGO REAL REFERENCIA REGISTRO REPETIR SALIR
-%token SI SIGNO SIGUIENTE SINO SUBPROGRAMA TABLA TIPO ULTIMA VALOR VERDADERO CTC_CARACTER
-%token CTC_CADENA IDENTIFICADOR CTC_ENTERA CTC_REAL DOS_PUNTOS CUATRO_PUNTOS
-%token ASIGNACION FLECHA INC DEC DESPI DESPD LEQ GEQ NEQ AND OR ASIG_SUMA ASIG_RESTA
+%token ABSTRACTO  BUCLE  CASOS CLASE   CONSTRUCTOR 
+%token CUANDO  DESCENDENTE DESTRUCTOR DEVOLVER DICCIONARIO EN ENTERO ENTONCES
+%token ENUMERACION  ESPECIFICO EXCEPCION    FINAL FINALMENTE GENERICO
+%token   LANZA  LISTA MIENTRAS OBJETO OTRO PARA PRINCIPIO PRIVADO
+%token  PROTEGIDO PRUEBA PUBLICO   REFERENCIA REGISTRO REPETIR SALIR
+%token SI  SIGUIENTE SINO SUBPROGRAMA TABLA  ULTIMA VALOR  
+%token      
+%token  FLECHA INC DEC DESPI DESPD LEQ GEQ NEQ AND OR ASIG_SUMA ASIG_RESTA
 %token ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
 */
 
-int yyerror (char *s) {
+int yyerror (char *msg) {
   fflush(stdout);
-  printf("***************** %s (token: %s)\n",s, yytext);
+  printf("***************** Error en la línea %d cerca de '%s': %s\n", yylineno, yytext, msg);
 }
 
-int yywrap() {
-  return(1);
-}
+int yywrap() { return(1); }
 
 int main(int argc, char *argv[]) {
-  yydebug = 0;
+
+  /* Debug options */
+  yydebug = 0;        // Bison
+  enabledlogging = 1; // Mensajes del lexer
+
+  /* Argument validator */
   if (argc < 2) {
-    printf("Uso: ./simple NombreArchivo\n");
-  } else {
-    yyin = fopen(argv[1],"r");
-    yyparse();
+    fprintf(stderr, "Uso: ./simple <archivo>\n");
+    exit(1);
   }
+
+  /* Program */
+  yyin = fopen(argv[1],"r");
+  yyparse();
+  fclose(yyin);
+
+  return 0;
 }
