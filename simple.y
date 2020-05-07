@@ -14,7 +14,7 @@
   #define YYDEBUG 1
 %}
 
-%token COMA DOS_PUNTOS_H DOS_PUNTOS_V PUNTO_COMA
+%token COMA DOS_PUNTOS_H DOS_PUNTOS_V PUNTO_COMA PARENT_A PARENT_C
 %token ASIGNACION CUATRO_PUNTOS
 
 %token PROGRAMA FIN
@@ -23,6 +23,7 @@
 %token CORTO LARGO
 %token BOOLEANO CARACTER ENTERO REAL
 %token CONSTANTE ES RANGO SIGNO TIPO
+%token TABLA
 
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
@@ -73,17 +74,22 @@ nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
 /************************* DECLARACIÓN DE OBJETOS *************************/
 
 declaracion_objeto    : ids DOS_PUNTOS_V CONSTANTE tipo_basico ASIGNACION expresion PUNTO_COMA
+                      | ids DOS_PUNTOS_V tipo_basico ASIGNACION expresion PUNTO_COMA
+                      | ids DOS_PUNTOS_V tipo_basico PUNTO_COMA
                       ;
 
 /************************** DECLARACIÓN DE TIPOS **************************/
 
 declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
                       ;
-tipo_no_estructurado  : tipo_escalar
-                      ;
 
 /************************ ESPECIFICACIÓN DE TIPOS *************************/
 
+especificacion_tipo   : IDENTIFICADOR | tipo_no_estructurado
+                      ;
+tipo_no_estructurado  : tipo_escalar
+                      ;
+tipo_tabla            : TABLA 
 tipo_escalar          : SIGNO tipo_basico longitud rango
                       | SIGNO tipo_basico longitud
                       | SIGNO tipo_basico rango

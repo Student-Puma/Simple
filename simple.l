@@ -7,11 +7,14 @@
 
   extern int enabledlogging;
 
-  void logging(char * type)
-  { if(enabledlogging) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
+  int es(char * token)
+  { return strcmp(yytext, token) == 0; }
 
   void ignorecase()
   { for(char *p = yytext; *p; ++p) *p = *p>0x60 && *p<0x7b ? *p - 0x20 : *p; }
+
+  void logging(char * type)
+  { if(enabledlogging) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
 %}
 
 %option yylineno
@@ -53,47 +56,50 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
-{string}                            { logging("cadena"); return(CTC_CADENA); }
+{string}                            { logging("cadena");        return CTC_CADENA; }
 {ickeyword}                         { logging("palabra reservada");
                                       ignorecase();
-                                      if(strcmp(yytext, "BOOLEANO") == 0)       return BOOLEANO;
-                                      if(strcmp(yytext, "CARACTER") == 0)       return CARACTER;
-                                      if(strcmp(yytext, "COMO") == 0)           return COMO;
-                                      if(strcmp(yytext, "CONSTANTE") == 0)      return CONSTANTE;
-                                      if(strcmp(yytext, "CORTO") == 0)          return CORTO;
-                                      if(strcmp(yytext, "DE") == 0)             return DE;
-                                      if(strcmp(yytext, "ENTERO") == 0)         return ENTERO;
-                                      if(strcmp(yytext, "ES") == 0)             return ES;
-                                      if(strcmp(yytext, "EXPORTAR") == 0)       return EXPORTAR;
-                                      if(strcmp(yytext, "FALSO") == 0)          return FALSO;
-                                      if(strcmp(yytext, "FIN") == 0)            return FIN;
-                                      if(strcmp(yytext, "IMPORTAR") == 0)       return IMPORTAR;
-                                      if(strcmp(yytext, "LARGO") == 0)          return LARGO;
-                                      if(strcmp(yytext, "LIBRERIA") == 0)       return LIBRERIA;
-                                      if(strcmp(yytext, "PROGRAMA") == 0)       return PROGRAMA;
-                                      if(strcmp(yytext, "RANGO") == 0)          return RANGO;
-                                      if(strcmp(yytext, "REAL") == 0)           return REAL;
-                                      if(strcmp(yytext, "SIGNO") == 0)          return SIGNO;
-                                      if(strcmp(yytext, "TIPO") == 0)           return TIPO;
-                                      if(strcmp(yytext, "VERDADERO") == 0)      return VERDADERO;
+                                      if(es("BOOLEANO"))        return BOOLEANO;
+                                      if(es("CARACTER"))        return CARACTER;
+                                      if(es("COMO"))            return COMO;
+                                      if(es("CONSTANTE"))       return CONSTANTE;
+                                      if(es("CORTO"))           return CORTO;
+                                      if(es("DE"))              return DE;
+                                      if(es("ENTERO"))          return ENTERO;
+                                      if(es("ES"))              return ES;
+                                      if(es("EXPORTAR"))        return EXPORTAR;
+                                      if(es("FALSO"))           return FALSO;
+                                      if(es("FIN"))             return FIN;
+                                      if(es("IMPORTAR"))        return IMPORTAR;
+                                      if(es("LARGO"))           return LARGO;
+                                      if(es("LIBRERIA"))        return LIBRERIA;
+                                      if(es("PROGRAMA"))        return PROGRAMA;
+                                      if(es("RANGO"))           return RANGO;
+                                      if(es("REAL"))            return REAL;
+                                      if(es("SIGNO"))           return SIGNO;
+                                      if(es("TABLA"))           return TABLA;
+                                      if(es("TIPO"))            return TIPO;
+                                      if(es("VERDADERO"))       return VERDADERO;
                                     }
-\'{character}\'                     { logging("caracter"); return(CTC_CARACTER); }
+\'{character}\'                     { logging("caracter");      return CTC_CARACTER; }
 {comment}|[\r\n\t\b ]               ;
 {commentbgn}                        BEGIN(commentml);
 <commentml>.|\n                     ;
 <commentml>{commentend}             BEGIN(INITIAL);
-{identifier}                        { logging("identificador"); return(IDENTIFICADOR); }
-{b8}+|{digit}+|{b16}+               { logging("ctc entera"); return(CTC_ENTERA); }
-{octal}|{decimal}|{hexadecimal}     { logging("ctc real"); return(CTC_REAL); }
+{identifier}                        { logging("identificador"); return IDENTIFICADOR; }
+{b8}+|{digit}+|{b16}+               { logging("ctc entera");    return CTC_ENTERA; }
+{octal}|{decimal}|{hexadecimal}     { logging("ctc real");      return CTC_REAL; }
 {delimiter}                         { logging("delimitador");
-                                      if(strcmp(yytext, ",") == 0) return(COMA);
-                                      else if(strcmp(yytext, "..") == 0) return(DOS_PUNTOS_H);
-                                      else if(strcmp(yytext, ":") == 0) return(DOS_PUNTOS_V);
-                                      else if(strcmp(yytext, ";") == 0) return(PUNTO_COMA);
+                                      if(es(","))               return COMA;
+                                      if(es(".."))              return DOS_PUNTOS_H;
+                                      if(es(":"))               return DOS_PUNTOS_V;
+                                      if(es("("))               return PUNTO_COMA;
+                                      if(es(")"))               return PUNTO_COMA;
+                                      if(es(";"))               return PUNTO_COMA;
                                     }
 {operator}                          { logging("operador");
-                                      if(strcmp(yytext, ":=") == 0) return(ASIGNACION);
-                                      else if(strcmp(yytext, "::") == 0) return(CUATRO_PUNTOS);
+                                      if(es(":="))              return ASIGNACION;
+                                      if(es("::"))              return CUATRO_PUNTOS;
                                     }
 
 .                                   { logging("ERROR: caracter incorrecto"); }
