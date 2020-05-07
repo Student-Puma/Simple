@@ -5,5 +5,8 @@ libreria test;
 
   exportar a,b,c;
 
+  tipo kiko es entero;
+
   a : constante entero := pueblo;
+  tipo kike es booleano corto rango 1 .. 10;
 fin

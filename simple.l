@@ -5,11 +5,13 @@
   #include <string.h>
   #include "simple.tab.h"
 
+  const int debug = 1;
+
   void logging(char * type)
-  { if(1) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
+  { if(debug) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
 
   void ignorecase()
-  { for(char *p = yytext; *p; ++p) *p = *p>0x40 && *p<0x5b ? *p|0x60 : *p; }
+  { for(char *p = yytext; *p; ++p) *p = *p>0x60 && *p<0x7b ? *p - 0x20 : *p; }
 %}
 
 %option yylineno
@@ -54,15 +56,26 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {string}                            { logging("cadena"); return(CTC_CADENA); }
 {ickeyword}                         { logging("palabra reservada");
                                       ignorecase();
-                                      if(strcmp(yytext, "como") == 0) return(COMO);
-                                      else if(strcmp(yytext, "constante") == 0) return(CONSTANTE);
-                                      else if(strcmp(yytext, "de") == 0) return(DE);
-                                      else if(strcmp(yytext, "entero") == 0) return(ENTERO);
-                                      else if(strcmp(yytext, "exportar") == 0) return(EXPORTAR);
-                                      else if(strcmp(yytext, "fin") == 0) return(FIN);
-                                      else if(strcmp(yytext, "importar") == 0) return(IMPORTAR);
-                                      else if(strcmp(yytext, "libreria") == 0) return(LIBRERIA);
-                                      else if(strcmp(yytext, "programa") == 0) return(PROGRAMA);
+                                      if(strcmp(yytext, "BOOLEANO") == 0)       return BOOLEANO;
+                                      if(strcmp(yytext, "CARACTER") == 0)       return CARACTER;
+                                      if(strcmp(yytext, "COMO") == 0)           return COMO;
+                                      if(strcmp(yytext, "CONSTANTE") == 0)      return CONSTANTE;
+                                      if(strcmp(yytext, "CORTO") == 0)          return CORTO;
+                                      if(strcmp(yytext, "DE") == 0)             return DE;
+                                      if(strcmp(yytext, "ENTERO") == 0)         return ENTERO;
+                                      if(strcmp(yytext, "ES") == 0)             return ES;
+                                      if(strcmp(yytext, "EXPORTAR") == 0)       return EXPORTAR;
+                                      if(strcmp(yytext, "FALSO") == 0)          return FALSO;
+                                      if(strcmp(yytext, "FIN") == 0)            return FIN;
+                                      if(strcmp(yytext, "IMPORTAR") == 0)       return IMPORTAR;
+                                      if(strcmp(yytext, "LARGO") == 0)          return LARGO;
+                                      if(strcmp(yytext, "LIBRERIA") == 0)       return LIBRERIA;
+                                      if(strcmp(yytext, "PROGRAMA") == 0)       return PROGRAMA;
+                                      if(strcmp(yytext, "RANGO") == 0)          return RANGO;
+                                      if(strcmp(yytext, "REAL") == 0)           return REAL;
+                                      if(strcmp(yytext, "SIGNO") == 0)          return SIGNO;
+                                      if(strcmp(yytext, "TIPO") == 0)           return TIPO;
+                                      if(strcmp(yytext, "VERDADERO") == 0)      return VERDADERO;
                                     }
 \'{character}\'                     { logging("caracter"); return(CTC_CARACTER); }
 {comment}|[\r\n\t\b ]               ;
@@ -74,7 +87,8 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real"); return(CTC_REAL); }
 {delimiter}                         { logging("delimitador");
                                       if(strcmp(yytext, ",") == 0) return(COMA);
-                                      else if(strcmp(yytext, ":") == 0) return(DOS_PUNTOS);
+                                      else if(strcmp(yytext, "..") == 0) return(DOS_PUNTOS_H);
+                                      else if(strcmp(yytext, ":") == 0) return(DOS_PUNTOS_V);
                                       else if(strcmp(yytext, ";") == 0) return(PUNTO_COMA);
                                     }
 {operator}                          { logging("operador");
