@@ -65,7 +65,9 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("CONSTANTE"))       return CONSTANTE;
                                       if(es("CORTO"))           return CORTO;
                                       if(es("DE"))              return DE;
+                                      if(es("DICCIONARIO"))     return DICCIONARIO;
                                       if(es("ENTERO"))          return ENTERO;
+                                      if(es("ENUMERACION"))     return ENUMERACION;
                                       if(es("ES"))              return ES;
                                       if(es("EXPORTAR"))        return EXPORTAR;
                                       if(es("FALSO"))           return FALSO;
@@ -73,9 +75,11 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("IMPORTAR"))        return IMPORTAR;
                                       if(es("LARGO"))           return LARGO;
                                       if(es("LIBRERIA"))        return LIBRERIA;
+                                      if(es("LISTA"))           return LISTA;
                                       if(es("PROGRAMA"))        return PROGRAMA;
                                       if(es("RANGO"))           return RANGO;
                                       if(es("REAL"))            return REAL;
+                                      if(es("REGISTRO"))        return REGISTRO;
                                       if(es("SIGNO"))           return SIGNO;
                                       if(es("TABLA"))           return TABLA;
                                       if(es("TIPO"))            return TIPO;
@@ -93,13 +97,14 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es(","))               return COMA;
                                       if(es(".."))              return DOS_PUNTOS_H;
                                       if(es(":"))               return DOS_PUNTOS_V;
-                                      if(es("("))               return PUNTO_COMA;
-                                      if(es(")"))               return PUNTO_COMA;
+                                      if(es("("))               return PARENT_A;
+                                      if(es(")"))               return PARENT_C;
                                       if(es(";"))               return PUNTO_COMA;
                                     }
 {operator}                          { logging("operador");
                                       if(es(":="))              return ASIGNACION;
                                       if(es("::"))              return CUATRO_PUNTOS;
+                                      if(es("=>"))              return FLECHA;
                                     }
 
 .                                   { logging("ERROR: caracter incorrecto"); }

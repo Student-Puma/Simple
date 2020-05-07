@@ -14,16 +14,15 @@
   #define YYDEBUG 1
 %}
 
-%token COMA DOS_PUNTOS_H DOS_PUNTOS_V PUNTO_COMA PARENT_A PARENT_C
-%token ASIGNACION CUATRO_PUNTOS
+%token COMA DOS_PUNTOS_H DOS_PUNTOS_V PARENT_A PARENT_C PUNTO_COMA
+%token ASIGNACION CUATRO_PUNTOS FLECHA
 
 %token PROGRAMA FIN
 %token DE COMO EXPORTAR IMPORTAR LIBRERIA
 
 %token CORTO LARGO
 %token BOOLEANO CARACTER ENTERO REAL
-%token CONSTANTE ES RANGO SIGNO TIPO
-%token TABLA
+%token CONSTANTE DICCIONARIO ENUMERACION ES LISTA RANGO REGISTRO SIGNO TABLA TIPO
 
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
@@ -39,7 +38,6 @@ definicion_programa   : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa FIN
                       ;
 codigo_programa       : importar
                       ;
-
 
 definicion_libreria   : LIBRERIA IDENTIFICADOR PUNTO_COMA codigo_libreria FIN
                       ;
@@ -73,23 +71,35 @@ nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
 
 /************************* DECLARACIÓN DE OBJETOS *************************/
 
-declaracion_objeto    : ids DOS_PUNTOS_V CONSTANTE tipo_basico ASIGNACION expresion PUNTO_COMA
-                      | ids DOS_PUNTOS_V tipo_basico ASIGNACION expresion PUNTO_COMA
-                      | ids DOS_PUNTOS_V tipo_basico PUNTO_COMA
+declaracion_objeto    : declaracion_constante | declaracion_variable
+                      ;
+declaracion_constante : ids DOS_PUNTOS_V CONSTANTE especificacion_tipo ASIGNACION expresion PUNTO_COMA
+                      ;
+declaracion_variable  : ids DOS_PUNTOS_V especificacion_tipo ASIGNACION expresion PUNTO_COMA
+                      | ids DOS_PUNTOS_V especificacion_tipo PUNTO_COMA
                       ;
 
 /************************** DECLARACIÓN DE TIPOS **************************/
 
 declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
+                      | TIPO IDENTIFICADOR ES tipo_estructurado
                       ;
 
 /************************ ESPECIFICACIÓN DE TIPOS *************************/
 
 especificacion_tipo   : IDENTIFICADOR | tipo_no_estructurado
                       ;
-tipo_no_estructurado  : tipo_escalar
+tipo_estructurado     : tipo_registro | tipo_enumerado
                       ;
-tipo_tabla            : TABLA 
+tipo_registro         : REGISTRO campos FIN REGISTRO
+                      ;
+tipo_enumerado        : ENUMERACION DE tipo_escalar elementos_enumeracion FIN ENUMERACION  
+                      | ENUMERACION elementos_enumeracion FIN ENUMERACION       
+                      ;
+tipo_no_estructurado  : tipo_escalar
+                      | tipo_tabla
+                      | tipo_diccionario
+                      ;
 tipo_escalar          : SIGNO tipo_basico longitud rango
                       | SIGNO tipo_basico longitud
                       | SIGNO tipo_basico rango
@@ -99,6 +109,12 @@ tipo_escalar          : SIGNO tipo_basico longitud rango
                       | tipo_basico rango
                       | tipo_basico
                       ;
+tipo_tabla            : TABLA PARENT_A expresion DOS_PUNTOS_H expresion PARENT_C DE especificacion_tipo
+                      | LISTA DE especificacion_tipo
+                      ;
+tipo_diccionario      : DICCIONARIO DE especificacion_tipo
+                      ;
+
 tipo_basico           : BOOLEANO
                       | CARACTER
                       | ENTERO
@@ -130,6 +146,19 @@ literal               : VERDADERO
                       | CTC_CARACTER
                       | CTC_ENTERA
                       | CTC_REAL
+                      ;
+campos                : declaracion_variable campos
+                      | declaracion_variable
+                      ;
+elementos_enumeracion : elemento_enumeracion elementos_enumeracion
+                      | elemento_enumeracion
+                      ;
+elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion
+                      | IDENTIFICADOR
+                      ;
+clave_valor           : CTC_CADENA FLECHA expresion
+                      ;
+campo_valor           : IDENTIFICADOR FLECHA expresion
                       ;
 
 %%
