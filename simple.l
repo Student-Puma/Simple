@@ -55,7 +55,9 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {ickeyword}                         { logging("palabra reservada");
                                       ignorecase();
                                       if(strcmp(yytext, "como") == 0) return(COMO);
+                                      else if(strcmp(yytext, "constante") == 0) return(CONSTANTE);
                                       else if(strcmp(yytext, "de") == 0) return(DE);
+                                      else if(strcmp(yytext, "entero") == 0) return(ENTERO);
                                       else if(strcmp(yytext, "exportar") == 0) return(EXPORTAR);
                                       else if(strcmp(yytext, "fin") == 0) return(FIN);
                                       else if(strcmp(yytext, "importar") == 0) return(IMPORTAR);
@@ -72,10 +74,12 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real"); return(CTC_REAL); }
 {delimiter}                         { logging("delimitador");
                                       if(strcmp(yytext, ",") == 0) return(COMA);
+                                      else if(strcmp(yytext, ":") == 0) return(DOS_PUNTOS);
                                       else if(strcmp(yytext, ";") == 0) return(PUNTO_COMA);
                                     }
 {operator}                          { logging("operador");
-                                      if(strcmp(yytext, "::") == 0) return(CUATRO_PUNTOS);
+                                      if(strcmp(yytext, ":=") == 0) return(ASIGNACION);
+                                      else if(strcmp(yytext, "::") == 0) return(CUATRO_PUNTOS);
                                     }
 
 .                                   { logging("ERROR: caracter incorrecto"); }

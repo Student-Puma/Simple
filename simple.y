@@ -10,9 +10,14 @@
   #define YYDEBUG 1
 %}
 
+%token COMA DOS_PUNTOS PUNTO_COMA
+%token ASIGNACION CUATRO_PUNTOS
+
 %token PROGRAMA FIN
 %token DE COMO EXPORTAR IMPORTAR LIBRERIA
-%token COMA CUATRO_PUNTOS PUNTO_COMA
+
+%token CONSTANTE ENTERO
+
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL
 
@@ -21,18 +26,21 @@
 programa            : definicion_programa
                     | definicion_libreria
                     ;
-
 definicion_programa : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa FIN
                     ;
 codigo_programa     : importar
                     ;
 
+
 definicion_libreria : LIBRERIA IDENTIFICADOR PUNTO_COMA codigo_libreria FIN
                     ;
-codigo_libreria     : importar exportar
-                    | importar
+codigo_libreria     : imexportaciones declaracion_objeto
                     ;
-
+imexportaciones     : importar exportar
+                    | importar
+                    | exportar
+                    | /* vacio */
+                    ;
 exportar            : EXPORTAR ids PUNTO_COMA
 importar            : importar libreria PUNTO_COMA
                     | libreria PUNTO_COMA
@@ -43,6 +51,12 @@ libreria            : DE LIBRERIA nombre_libreria IMPORTAR IDENTIFICADOR
                     ;
 nombre_libreria     : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
                     | IDENTIFICADOR
+                    ;
+
+
+declaracion_objeto  : ids DOS_PUNTOS CONSTANTE tipo ASIGNACION IDENTIFICADOR PUNTO_COMA
+                    ;
+tipo                : ENTERO
                     ;
 
 ids                 : IDENTIFICADOR COMA ids

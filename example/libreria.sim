@@ -1,0 +1,9 @@
+libreria test;
+  de libreria a importar a;
+  importar libreria a;
+  importar libreria c como b;
+
+  exportar a,b,c;
+
+  a : constante entero := pueblo;
+fin
