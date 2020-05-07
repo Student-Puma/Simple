@@ -56,6 +56,7 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       ignorecase();
                                       if(strcmp(yytext, "como") == 0) return(COMO);
                                       else if(strcmp(yytext, "de") == 0) return(DE);
+                                      else if(strcmp(yytext, "exportar") == 0) return(EXPORTAR);
                                       else if(strcmp(yytext, "fin") == 0) return(FIN);
                                       else if(strcmp(yytext, "importar") == 0) return(IMPORTAR);
                                       else if(strcmp(yytext, "libreria") == 0) return(LIBRERIA);
