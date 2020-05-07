@@ -6,7 +6,7 @@
   #include "simple.tab.h"
 
   void logging(char * type)
-  { fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
+  { if(1) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
 
   void ignorecase()
   { for(char *p = yytext; *p; ++p) *p = *p>0x40 && *p<0x5b ? *p|0x60 : *p; }
@@ -52,11 +52,21 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 %%
 
 {string}                            { logging("cadena"); return(CTC_CADENA); }
+{ickeyword}                         { logging("palabra reservada");
+                                      ignorecase();
+                                      if(strcmp(yytext, "como") == 0) return(COMO);
+                                      else if(strcmp(yytext, "de") == 0) return(DE);
+                                      else if(strcmp(yytext, "fin") == 0) return(FIN);
+                                      else if(strcmp(yytext, "importar") == 0) return(IMPORTAR);
+                                      else if(strcmp(yytext, "libreria") == 0) return(LIBRERIA);
+                                      else if(strcmp(yytext, "programa") == 0) return(PROGRAMA);
+                                    }
 \'{character}\'                     { logging("caracter"); return(CTC_CARACTER); }
 {comment}|[\r\n\t\b ]               ;
 {commentbgn}                        BEGIN(commentml);
 <commentml>.|\n                     ;
 <commentml>{commentend}             BEGIN(INITIAL);
+{identifier}                        { logging("identificador"); return(IDENTIFICADOR); }
 {b8}+|{digit}+|{b16}+               { logging("ctc entera"); return(CTC_ENTERA); }
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real"); return(CTC_REAL); }
 {delimiter}                         { logging("delimitador");
@@ -65,15 +75,6 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {operator}                          { logging("operador");
                                       if(strcmp(yytext, "::") == 0) return(CUATRO_PUNTOS);
                                     }
-{ickeyword}                         { logging("palabra reservada");
-                                      ignorecase();
-                                      if(strcmp(yytext, "como") == 0) return(COMO);
-                                      else if(strcmp(yytext, "fin") == 0) return(FIN);
-                                      else if(strcmp(yytext, "importar") == 0) return(IMPORTAR);
-                                      else if(strcmp(yytext, "libreria") == 0) return(LIBRERIA);
-                                      else if(strcmp(yytext, "programa") == 0) return(PROGRAMA);
-                                    }
-{identifier}                        { logging("identificador"); return(IDENTIFICADOR); }
 
 .                                   { logging("ERROR: caracter incorrecto"); }
 

@@ -11,32 +11,39 @@
 %}
 
 %token PROGRAMA FIN
-%token IMPORTAR LIBRERIA COMO
+%token DE COMO IMPORTAR LIBRERIA
 %token CUATRO_PUNTOS PUNTO_COMA
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL
 
-%union {
-  char * texto;
-}
-
-%type<texto> IDENTIFICADOR id libreria
-
 %%
 
-programa  : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo FIN                        { printf("Programa completado\n"); }
-          ;
-codigo    : importar
-          ;
-importar  : importar PUNTO_COMA
-          | IMPORTAR LIBRERIA libreria COMO id                                  { printf("Importando como\n"); }
-          | IMPORTAR LIBRERIA libreria                                          { printf("Importando\n"); }
-          ;
-libreria  : libreria CUATRO_PUNTOS id
-          | id
-          ;
-id        : IDENTIFICADOR
-          ;
+programa            : definicion_programa
+                    | definicion_libreria
+                    ;
+
+definicion_programa : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa FIN
+                    ;
+codigo_programa     : importar
+                    ;
+
+definicion_libreria : LIBRERIA IDENTIFICADOR PUNTO_COMA codigo_libreria FIN
+                    ;
+codigo_libreria     : importar
+                    ;
+
+
+importar            : importar libreria PUNTO_COMA
+                    | libreria PUNTO_COMA
+                    ;
+libreria            : DE LIBRERIA nombre_libreria IMPORTAR IDENTIFICADOR
+                    | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR
+                    | IMPORTAR LIBRERIA nombre_libreria
+                    ;
+nombre_libreria     : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
+                    | IDENTIFICADOR
+                    ;
+
 %%
 
 /*
@@ -53,7 +60,7 @@ id        : IDENTIFICADOR
 
 int yyerror (char *s) {
   fflush(stdout);
-  printf("***************** %s\n",s);
+  printf("***************** %s (token: %s)\n",s, yytext);
 }
 
 int yywrap() {
