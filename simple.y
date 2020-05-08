@@ -50,7 +50,9 @@ programa              : definicion_programa
 definicion_programa   : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa FIN
                       ;
 codigo_programa       : importar cuerpo_subprograma
+                      | cuerpo_subprograma
                       ;
+
 definicion_libreria   : LIBRERIA IDENTIFICADOR PUNTO_COMA codigo_libreria FIN
                       ;
 codigo_libreria       : imexportar declaraciones
@@ -58,23 +60,23 @@ codigo_libreria       : imexportar declaraciones
 declaraciones         : declaracion declaraciones
                       | declaracion
                       ;
-declaraciones_op      : declaraciones
+declaracionesop       : declaraciones
                       | /* opcional */
 declaracion           : declaracion_objeto | declaracion_tipo | declaracion_sprograma
                       ;
 
 /************************** IMPORTAR / EXPORTAR ***************************/
 
-imexportar            : importar EXPORTAR
+imexportar            : importar exportar
+                      | importar
+                      | exportar
+                      | /* vacio */
                       ;
 exportar              : EXPORTAR nombre_librerias PUNTO_COMA
-                      | /* opcional */
-                      ;
 importar              : importar libreria PUNTO_COMA
                       | libreria PUNTO_COMA
-                      | /* opcional */
                       ;
-libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias;
+libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias
                       | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR
                       | IMPORTAR LIBRERIA nombre_libreria
                       ;
@@ -103,9 +105,6 @@ declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
 
 /************************ ESPECIFICACIÓN DE TIPOS *************************/
 
-especificacion_tipo_op: DOS_PUNTOS_V especificacion_tipo
-                      | /* opcional */
-                      ;
 especificacion_tipo   : IDENTIFICADOR | tipo_no_estructurado
                       ;
 tipo_estructurado     : tipo_registro | tipo_enumerado | clase
@@ -162,13 +161,13 @@ decl_componente       : visibilidad componente
 componente            : declaracion_tipo
                       | declaracion_objeto
                       | modificadores declaracion_sprograma
+                      | declaracion_sprograma
                       ;
 visibilidad           : PUBLICO | PROTEGIDO | PRIVADO
                       | /* opcional */
                       ;
 modificadores         : modificador modificadores
                       | modificador
-                      | /* opcional */
                       ;
 modificador           : CONSTRUCTOR | DESTRUCTOR | GENERICO | ABSTRACTO | ESPECIFICO | FINAL
                       ;
@@ -179,14 +178,7 @@ declaracion_sprograma : SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBP
                       ;
 cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado
                       ;
-cuerpo_subprograma    : declaraciones_op PRINCIPIO instrucciones FIN
-                      ;
-definicion_parametros : definicion_parametro definicion_parametros
-                      | definicion_parametro
-                      | /* opcional */
-                      ;
-definicion_parametro  : IDENTIFICADOR ASIGNACION expresion
-                      | expresion
+cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
                       ;
 parametrizacion       : PARENT_A declaracion_parametrs PARENT_C
                       | /* opcional */
@@ -203,140 +195,24 @@ modo                  : VALOR | REFERENCIA
 tipo_resultado        : DEVOLVER especificacion_tipo
                       | /* opcional */
                       ;
-llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
 
 /***************************** INSTRUCCIONES ******************************/
 
-instrucciones         : instruccion instrucciones
-                      | instruccion
-                      ;
-instruccion           : instr_asignacion | instr_devolver | instr_llamada
-                      | instr_si | instr_casos | instr_bucle | instr_interrupcion
-                      | instr_lanzar | instr_capturar
-                      ;
-instr_asignacion      : objeto op_asignacion expresion PUNTO_COMA
-                      ;
-instr_devolver        : DEVOLVER expresion PUNTO_COMA
-                      | DEVOLVER PUNTO_COMA
-                      ;
-instr_llamada         : llamada_subprograma PUNTO_COMA
-                      ;
-instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI
-                      | SI expresion ENTONCES instrucciones FIN SI
-                      ;
-instr_casos           : CASOS expresion ES casos FIN CASOS
-                      ;
-instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clausula_iteracion instrucciones FIN BUCLE
-                      | clausula_iteracion instrucciones FIN BUCLE
-                      ;
-instr_interrupcion    : SIGUIENTE cuando PUNTO_COMA
-                      | SALIR DE IDENTIFICADOR cuando PUNTO_COMA
-                      | SALIR cuando PUNTO_COMA
-                      ;
-instr_lanzar          : LANZA nombre_libreria PUNTO_COMA
-                      ;
-instr_capturar        : PRUEBA instrucciones clausulas FIN PRUEBA
-                      ;
-                      
-casos                 : caso casos
-                      | caso
-                      ;
-caso                  : CUANDO entradas FLECHA instrucciones
-                      ;
-entradas              : entrada DOS_PUNTOS_V entradas
-                      | entrada
-                      ;
-entrada               : expresion DOS_PUNTOS_H expresion
-                      | expresion
-                      | OTRO
-                      ;
-clausulas_iteracion   : clausula_iteracion clausulas_iteracion
-                      | clausula_iteracion
-                      ;
-clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo_op EN expresion
-                      | REPETIR IDENTIFICADOR especificacion_tipo_op
-                      | EN rango descendiente_op
-                      | MIENTRAS expresion
-                      ;
-descendiente_op       : DESCENDENTE
-                      | /* opcional */
-                      ;
-cuando                : CUANDO expresion
-                      | /* opcional */
-                      ;
-clausulas             : clausula_excepcion clausula_finalmente
-                      | clausula_finalmente
-                      | clausula_excepcion
-                      ;
-clausula_excepcion    : clausulas_especificas clausula_general
-                      ;
-clausulas_especificas : clausula_especifica clausulas_especificas
-                      | clausula_especifica
-                      | /* opcional */ /* FIXME */
-                      ;
-clausula_especifica   : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
-                      ;
-clausula_general      : EXCEPCION instrucciones
-                      ;
-clausula_finalmente   : FINALMENTE instrucciones
-                      ;
-
-/****************************** OPERADORES ********************************/
-
-op_asignacion         : ASIGNACION
-                      | ASIG_SUMA | ASIG_RESTA | ASIG_MULT | ASIG_DIV
-                      | ASIG_RESTO | ASIG_POT | ASIG_DESPD | ASIG_DESPI
-                      ;
-op_posfijo            : INC | DEC
-                      | /* opcional */
-                      ;
-op_matematico         : SUMA | RESTA | MULT | DIV | POT | RESTO
-                      ;
-op_booleano           : EQ | MAYOR | MENOR
-                      | NEQ | LEQ | GEQ | AND | OR
-                      ;
-
-
-/****************************** OPERACIONES *******************************/
-
-expresion_matematica  : expresion op_matematico expresion
-                      ;
-expresion_booleana    : expresion op_booleano expresion
-                      | NEG expresion
-                      ;
+instrucciones         :
+                      ; 
 
 /****************************** EXPRESIONES *******************************/
 
-expresiones           : expresion expresiones
+expresiones           : expresion COMA expresiones
                       | expresion
                       ;
-expresion             : expresion_condicional
-                      | expresion_potencia
-                      | expresion_matematica
-                      | expresion_booleana
-                      | primario
-                      | IDENTIFICADOR
-                      ;
-expresion_condicional : SI expresion ENTONCES expresion SINO expresion
-                      | SI expresion ENTONCES expresion
-                      | expresion
-                      ;
-expresion_potencia    : expresion_posfija POT expresion_potencia
-                      | expresion_posfija
-                      ;
-expresion_posfija     : expresion_unitaria op_posfijo
-                      ;
-expresion_unitaria    : RESTA primario
-                      | primario
+expresion             : primario
                       ;
 
 /******************************* PRIMARIOS ********************************/
 
 primario              : PARENT_A expresion PARENT_C
-                      | objeto llamada_subprograma
-                      | llamada_subprograma
                       | enumeracion
-                      | objeto
                       | literal
                       ;
 ids                   : IDENTIFICADOR COMA ids
@@ -351,37 +227,16 @@ literal               : VERDADERO
                       | CTC_ENTERA
                       | CTC_REAL
                       ;
-cadenas               : CTC_CADENA cadenas
-                      | CTC_CADENA
-                      ;
-objeto                : objeto PUNTO IDENTIFICADOR
-                      | objeto CORCHETE_A expresiones CORCHETE_C
-                      | objeto LLAVE_A cadenas LLAVE_C
-                      | nombre_libreria
-                      ;
 campos                : declaracion_variable campos
                       | declaracion_variable
                       ;
-enumeracion           : CORCHETE_A expresion_condicional clausulas_iteracion CORCHETE_C
-                      | CORCHETE_A expresiones CORCHETE_C
-                      | LLAVE_A campos_valor LLAVE_C
-                      | LLAVE_A claves_valor LLAVE_C
+enumeracion           : CORCHETE_A expresiones CORCHETE_C
                       ;
 elementos_enumeracion : elemento_enumeracion elementos_enumeracion
                       | elemento_enumeracion
                       ;
 elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion
                       | IDENTIFICADOR
-                      ;
-claves_valor          : clave_valor claves_valor
-                      | clave_valor
-                      ;
-clave_valor           : CTC_CADENA FLECHA expresion
-                      ;
-campos_valor          : campo_valor campos_valor
-                      | campo_valor
-                      ;
-campo_valor           : IDENTIFICADOR FLECHA expresion
                       ;
 
 %%

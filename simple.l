@@ -14,7 +14,7 @@
   { for(char *p = yytext; *p; ++p) *p = *p>0x60 && *p<0x7b ? *p - 0x20 : *p; }
 
   void logging(char * type)
-  { if(enabledlogging) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
+  { if(enabledlogging) fprintf(stdout, ">> linea %d, %s: %s\n", yylineno, type, yytext); }
 %}
 
 %option yylineno
@@ -129,8 +129,6 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real");      return CTC_REAL; }
 {delimiter}                         { logging("delimitador");
                                       if(es(","))               return COMA;
-                                      if(es("["))               return CORCHETE_A;
-                                      if(es("]"))               return CORCHETE_C;
                                       if(es(".."))              return DOS_PUNTOS_H;
                                       if(es(":"))               return DOS_PUNTOS_V;
                                       if(es("{"))               return LLAVE_A;
@@ -144,6 +142,8 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es(":="))              return ASIGNACION;
                                       if(es("::"))              return CUATRO_PUNTOS;
                                       if(es("=>"))              return FLECHA;
+                                      if(es("["))               return CORCHETE_A;
+                                      if(es("]"))               return CORCHETE_C;
 
                                       if(es("+"))               return SUMA;
                                       if(es("-"))               return RESTA;
