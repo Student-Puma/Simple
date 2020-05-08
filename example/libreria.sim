@@ -36,4 +36,11 @@ libreria test;
     B := 3
     C
   fin enumeracion
+
+  tipo k es clase ultima (l, m)
+    privado a : real := 10.5;
+    protegido b : mapa;
+    publico c : codigo;
+    d : dedos := 10;
+  fin clase
 fin

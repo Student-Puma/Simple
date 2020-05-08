@@ -24,6 +24,9 @@
 %token BOOLEANO CARACTER ENTERO REAL
 %token CONSTANTE DICCIONARIO ENUMERACION ES LISTA RANGO REGISTRO SIGNO TABLA TIPO
 
+%token PUBLICO PROTEGIDO PRIVADO
+%token ABSTRACTO CLASE CONSTRUCTOR DESTRUCTOR ESPECIFICO FINAL GENERICO ULTIMA
+
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
 
@@ -89,7 +92,7 @@ declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
 
 especificacion_tipo   : IDENTIFICADOR | tipo_no_estructurado
                       ;
-tipo_estructurado     : tipo_registro | tipo_enumerado
+tipo_estructurado     : tipo_registro | tipo_enumerado | clase
                       ;
 tipo_registro         : REGISTRO campos FIN REGISTRO
                       ;
@@ -125,6 +128,33 @@ longitud              : CORTO
                       ;
 rango                 : RANGO numerico DOS_PUNTOS_H numerico DOS_PUNTOS_H numerico
                       | RANGO numerico DOS_PUNTOS_H numerico
+                      ;
+
+/********************************* CLASES *********************************/
+
+clase                 : CLASE ULTIMA superclases decl_componentes FIN CLASE
+                      | CLASE superclases decl_componentes FIN CLASE
+                      ;
+superclases           : PARENT_A ids PARENT_C
+                      | /* vacio */
+                      ;
+decl_componentes      : decl_componente decl_componentes
+                      | decl_componente
+                      ;
+decl_componente       : visibilidad componente
+                      ;
+componente            : declaracion_tipo
+                      | declaracion_objeto
+/*                      | modificadores declaracion_subprograma */
+                      ;
+visibilidad           : PUBLICO | PROTEGIDO | PRIVADO
+                      | /* vacio */
+                      ;
+modificadores         : modificador modificadores
+                      | modificador
+                      | /* vacio */
+                      ;
+modificador           : CONSTRUCTOR | DESTRUCTOR | GENERICO | ABSTRACTO | ESPECIFICO | FINAL
                       ;
 
 /****************************** EXPRESIONES *******************************/

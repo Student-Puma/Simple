@@ -59,30 +59,41 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {string}                            { logging("cadena");        return CTC_CADENA; }
 {ickeyword}                         { logging("palabra reservada");
                                       ignorecase();
+                                      if(es("ABSTRACTO"))       return ABSTRACTO;
                                       if(es("BOOLEANO"))        return BOOLEANO;
                                       if(es("CARACTER"))        return CARACTER;
+                                      if(es("CLASE"))           return CLASE;
                                       if(es("COMO"))            return COMO;
                                       if(es("CONSTANTE"))       return CONSTANTE;
+                                      if(es("CONSTRUCTOR"))     return CONSTRUCTOR;
                                       if(es("CORTO"))           return CORTO;
                                       if(es("DE"))              return DE;
+                                      if(es("DESTRUCTOR"))      return DESTRUCTOR;
                                       if(es("DICCIONARIO"))     return DICCIONARIO;
                                       if(es("ENTERO"))          return ENTERO;
                                       if(es("ENUMERACION"))     return ENUMERACION;
                                       if(es("ES"))              return ES;
+                                      if(es("ESPECIFICO"))      return ESPECIFICO;
                                       if(es("EXPORTAR"))        return EXPORTAR;
                                       if(es("FALSO"))           return FALSO;
                                       if(es("FIN"))             return FIN;
+                                      if(es("FINAL"))           return FINAL;
+                                      if(es("GENERICO"))        return GENERICO;
                                       if(es("IMPORTAR"))        return IMPORTAR;
                                       if(es("LARGO"))           return LARGO;
                                       if(es("LIBRERIA"))        return LIBRERIA;
                                       if(es("LISTA"))           return LISTA;
+                                      if(es("PRIVADO"))         return PRIVADO;
                                       if(es("PROGRAMA"))        return PROGRAMA;
+                                      if(es("PROTEGIDO"))       return PROTEGIDO;
+                                      if(es("PUBLICO"))         return PUBLICO;
                                       if(es("RANGO"))           return RANGO;
                                       if(es("REAL"))            return REAL;
                                       if(es("REGISTRO"))        return REGISTRO;
                                       if(es("SIGNO"))           return SIGNO;
                                       if(es("TABLA"))           return TABLA;
                                       if(es("TIPO"))            return TIPO;
+                                      if(es("ULTIMA"))          return ULTIMA;
                                       if(es("VERDADERO"))       return VERDADERO;
                                     }
 \'{character}\'                     { logging("caracter");      return CTC_CARACTER; }
