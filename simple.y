@@ -17,7 +17,7 @@
 %token COMA DOS_PUNTOS_H DOS_PUNTOS_V PARENT_A PARENT_C PUNTO_COMA
 %token ASIGNACION CUATRO_PUNTOS FLECHA
 
-%token PROGRAMA FIN
+%token FIN PRINCIPIO PROGRAMA SUBPROGRAMA
 %token DE COMO EXPORTAR IMPORTAR LIBRERIA
 
 %token CORTO LARGO
@@ -26,6 +26,8 @@
 
 %token PUBLICO PROTEGIDO PRIVADO
 %token ABSTRACTO CLASE CONSTRUCTOR DESTRUCTOR ESPECIFICO FINAL GENERICO ULTIMA
+
+%token DEVOLVER REFERENCIA VALOR
 
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
@@ -49,8 +51,9 @@ codigo_libreria       : imexportar declaraciones
 declaraciones         : declaracion declaraciones
                       | declaracion
                       ;
-declaracion           : declaracion_objeto
-                      | declaracion_tipo
+declaracionesop       : declaraciones
+                      | /* opcional */
+declaracion           : declaracion_objeto | declaracion_tipo | declaracion_sprograma
                       ;
 
 /************************** IMPORTAR / EXPORTAR ***************************/
@@ -139,7 +142,7 @@ clase                 : CLASE ULTIMA superclases decl_componentes FIN CLASE
                       | CLASE superclases decl_componentes FIN CLASE
                       ;
 superclases           : PARENT_A ids PARENT_C
-                      | /* vacio */
+                      | /* opcional */
                       ;
 decl_componentes      : decl_componente decl_componentes
                       | decl_componente
@@ -148,17 +151,46 @@ decl_componente       : visibilidad componente
                       ;
 componente            : declaracion_tipo
                       | declaracion_objeto
-/*                      | modificadores declaracion_subprograma */
+                      | modificadores declaracion_sprograma
                       ;
 visibilidad           : PUBLICO | PROTEGIDO | PRIVADO
-                      | /* vacio */
+                      | /* opcional */
                       ;
 modificadores         : modificador modificadores
                       | modificador
-                      | /* vacio */
+                      | /* opcional */
                       ;
 modificador           : CONSTRUCTOR | DESTRUCTOR | GENERICO | ABSTRACTO | ESPECIFICO | FINAL
                       ;
+
+/****************************** SUBPROGRAMAS ******************************/
+
+declaracion_sprograma : SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBPROGRAMA
+                      ;
+cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado
+                      ;
+cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
+                      ;
+parametrizacion       : PARENT_A declaracion_parametrs PARENT_C
+                      | /* opcional */
+                      ;
+declaracion_parametrs : paramtros PUNTO_COMA declaracion_parametrs
+                      | paramtros
+                      ;
+paramtros             : ids DOS_PUNTOS_V modo especificacion_tipo ASIGNACION expresion
+                      | ids DOS_PUNTOS_V modo especificacion_tipo
+                      ;
+modo                  : VALOR | REFERENCIA
+                      | /* opcional */
+                      ;
+tipo_resultado        : DEVOLVER especificacion_tipo
+                      | /* opcional */
+                      ;
+
+/***************************** INSTRUCCIONES ******************************/
+
+instrucciones         :
+                      ; 
 
 /****************************** EXPRESIONES *******************************/
 

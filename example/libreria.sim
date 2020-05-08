@@ -42,5 +42,18 @@ libreria test;
     protegido b : mapa;
     publico c : codigo;
     d : dedos := 10;
+
+    subprograma test
+    principio
+    fin subprograma
   fin clase
+
+  subprograma l devolver entero
+  principio
+  fin subprograma
+
+  subprograma m (a,b : booleano := verdadero ; c : booleano) devolver booleano
+    izdo : entero := limIzdo;
+  principio
+  fin subprograma
 fin

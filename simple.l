@@ -69,6 +69,7 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("CORTO"))           return CORTO;
                                       if(es("DE"))              return DE;
                                       if(es("DESTRUCTOR"))      return DESTRUCTOR;
+                                      if(es("DEVOLVER"))        return DEVOLVER;
                                       if(es("DICCIONARIO"))     return DICCIONARIO;
                                       if(es("ENTERO"))          return ENTERO;
                                       if(es("ENUMERACION"))     return ENUMERACION;
@@ -83,17 +84,21 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("LARGO"))           return LARGO;
                                       if(es("LIBRERIA"))        return LIBRERIA;
                                       if(es("LISTA"))           return LISTA;
+                                      if(es("PRINCIPIO"))       return PRINCIPIO;
                                       if(es("PRIVADO"))         return PRIVADO;
                                       if(es("PROGRAMA"))        return PROGRAMA;
                                       if(es("PROTEGIDO"))       return PROTEGIDO;
                                       if(es("PUBLICO"))         return PUBLICO;
                                       if(es("RANGO"))           return RANGO;
                                       if(es("REAL"))            return REAL;
+                                      if(es("REFERENCIA"))      return REFERENCIA;
                                       if(es("REGISTRO"))        return REGISTRO;
                                       if(es("SIGNO"))           return SIGNO;
+                                      if(es("SUBPROGRAMA"))     return SUBPROGRAMA;
                                       if(es("TABLA"))           return TABLA;
                                       if(es("TIPO"))            return TIPO;
                                       if(es("ULTIMA"))          return ULTIMA;
+                                      if(es("VALOR"))           return VALOR;
                                       if(es("VERDADERO"))       return VERDADERO;
                                     }
 \'{character}\'                     { logging("caracter");      return CTC_CARACTER; }
