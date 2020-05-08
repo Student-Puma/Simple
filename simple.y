@@ -105,7 +105,7 @@ declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
 
 /************************ ESPECIFICACIÓN DE TIPOS *************************/
 
-especificacion_tipo   : IDENTIFICADOR | tipo_no_estructurado
+especificacion_tipo   : nombre_libreria | tipo_no_estructurado
                       ;
 tipo_estructurado     : tipo_registro | tipo_enumerado | clase
                       ;
@@ -177,11 +177,18 @@ modificador           : CONSTRUCTOR | DESTRUCTOR | GENERICO | ABSTRACTO | ESPECI
 declaracion_sprograma : SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBPROGRAMA
                       ;
 cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado
+                      | IDENTIFICADOR parametrizacion
                       ;
 cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
                       ;
 parametrizacion       : PARENT_A declaracion_parametrs PARENT_C
                       | /* opcional */
+                      ;
+definicion_parametros : definicion_parametro definicion_parametros
+                      | definicion_parametro
+                      ;
+definicion_parametro  : IDENTIFICADOR ASIGNACION expresion
+                      | expresion
                       ;
 declaracion_parametrs : paramtros PUNTO_COMA declaracion_parametrs
                       | paramtros
@@ -193,13 +200,38 @@ modo                  : VALOR | REFERENCIA
                       | /* opcional */
                       ;
 tipo_resultado        : DEVOLVER especificacion_tipo
-                      | /* opcional */
+                      ;
+llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
+                      | nombre_libreria PARENT_A PARENT_C
                       ;
 
 /***************************** INSTRUCCIONES ******************************/
 
-instrucciones         :
-                      ; 
+instrucciones         : instruccion instrucciones
+                      | instruccion
+                      ;
+instruccion           : instr_llamada | instr_bucle | instr_capturar
+                      ;
+instr_llamada         : llamada_subprograma PUNTO_COMA
+                      ;
+
+/************************* BUCLES Y CONDICIONALES *************************/
+
+instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clausula_iteracion instrucciones FIN BUCLE
+                      | clausula_iteracion instrucciones FIN BUCLE
+                      ;
+clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo EN expresion
+                      | PARA IDENTIFICADOR EN expresion
+                      | REPETIR IDENTIFICADOR especificacion_tipo
+                      | EN rango DESCENDENTE
+                      | EN rango
+                      | MIENTRAS expresion
+                      ;
+
+/******************************** PRUEBAS *********************************/
+
+instr_capturar        : PRUEBA instrucciones FIN PRUEBA
+                      ;
 
 /****************************** EXPRESIONES *******************************/
 
