@@ -1,0 +1,103 @@
+libreria misc;
+
+importar libreria principal::sistema_operativo::entrada_salida como E_S;
+
+variable : entero corto;
+
+PI : constante real := 3.141592;  ## variable global
+
+subprograma areaRectangulo (Base:real := 1; altura:Real := 1) devolver real
+  principio
+    devolver Base*altura;
+  fin subprograma
+
+subprograma altaUsuario ( nombre,direccion:lista de caracter; edad:entero; peso,altura:real)
+  principio
+    ;
+    ## algo mas de codigo aqui
+  fin subprograma
+
+tipo persona es registro
+  nombre : lista de caracter;
+  edad : entero;
+  casada : booleano := Falso;
+fin registro
+
+tipo esfera es clase (forma)
+  privado radio : real largo;
+  constructor subprograma esfera (radio : real) devolver esfera
+    principio
+      esfera::radio := radio;
+    fin subprograma
+  publico subprograma volumen devolver real
+    principio
+      devolver 4/3*PI*esfera::radio^3;
+    fin subprograma
+  fin clase
+
+tipo color es enumeracion de entero
+  Rojo := 1,
+  Verde := 2,
+  Azul := 3
+fin enumeracion
+
+subprograma Radio_Circunferencia devolver real
+
+  ## Constante
+  PI: constante real := .3141592^1;
+
+  ## Variables
+  area, radio: real;
+  otra_cosa : real := %x1F.34^-Faa;
+   
+principio
+
+  E_S::escribir_consola("%nRadio de la #{circunferencia#}%
+                        %o151%O144%X69%O157%x74%O141: ");
+  E_S::leer_consola(radio); #{ Entrada de dato #}
+
+  ## Calculo del area
+  area := PI * radio ^ 2;
+
+  #{ El resultado del area se saca por la "consola":
+     se trata de un numero real #}
+  escribir_consola("%nArea de la %
+                    %"circunferencia%": #f", area); escribir_consola("%n");
+
+  DeVoLVeR area;
+fin subprograma
+
+tipo entero_corto_sin_signo es entero corto;
+tipo enteros_8bits es signo entero corto rango -255 .. 255;
+tipo reales_10000 es real largo rango 0 .. 1^4;
+
+valores : lista de entero_corto_sin_signo := [ 88, 56, 100, 2, 25 ];
+valores2 : lista de lista de entero := [[1,2,3], [4,5]];
+
+tipo nombre_etiqueta es registro
+   campo1 : entero;
+   campo2 : real;
+   la_persona : persona;
+  fin registro
+
+pepito : persona := { nombre => "Pepe Perez", edad => 33, casada => Verdadero };
+
+coches : diccionario de color := { "golf" => Rojo, "xantia" => Verde, "corsa" => Azul };
+
+nuevos_valores : lista de entero corto := [ si elemento < 80 entonces elemento^2 para elemento : entero en valores ];
+
+subprograma escribir_lista (valores : lista de entero)
+  indice : entero := 0;
+principio
+  prueba
+    mientras indice < longitud(valores)
+      E_S::escribir_consola(valores[indice]);
+      indice :+ 1;
+      fin bucle
+    excepcion (longitud_excedida)
+      E_S::escribir_consola("Lista vacia%n");
+    excepcion
+      E_S::escribir_consola("Excepcion indefinida%n");
+  fin prueba
+fin subprograma
+    

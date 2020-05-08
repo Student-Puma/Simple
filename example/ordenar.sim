@@ -1,0 +1,135 @@
+libreria ordenacion;
+
+de libreria principal::sistema_operativo::entrada_salida importar abrir,cerrar;
+
+exportar ordenarQuicksort, ordenarQuicksort::quicksort;
+
+#{
+primer subprograma: implementación del quicksort
+#}
+subprograma ordenarQuicksort
+
+  n : constante entero := 20;
+  datos : tabla (1..n) de entero;
+  limIzdo : entero := 0;
+  limDcho : entero := n-1;
+
+  ##algoritmo de ordenacion
+  subprograma quicksort (datos : tabla(1..n) de entero; limIzdo,limDcho: valor entero)
+    izdo : entero := limIzdo;
+    dcho : entero := limDcho;
+    pivote : entero;
+
+  principio
+
+    pivote := datos[(izdo+dcho)/2];
+
+    mientras izdo<=dcho
+      mientras datos[izdo]<pivote /\ izdo<limDcho
+        izdo := izdo+1;
+      fin bucle
+
+      mientras pivote<datos[dcho] /\ dcho > limIzdo
+        dcho := dcho-1;
+      fin bucle
+
+      si (izdo<=dcho) entonces
+        temporal := datos[izdo];
+        datos[izdo] := datos[dcho];
+        datos[dcho] := temporal;
+        izdo := izdo+1;
+        dcho := dcho-1;
+      fin si
+    fin bucle
+
+    si izdo<dcho entonces
+      quicksort(datos,limIzdo,dcho);
+    fin si
+    si dcho>izdo entonces
+      quicksort(datos,izdo,limDcho);
+    fin si
+
+  fin subprograma
+
+  subprograma llenarLista (datos : referencia tabla(1..n) de entero; n : valor entero)
+  principio
+    repetir i en 1 .. n
+      datos[i] := aleatorio(1,100);
+    fin bucle
+  fin subprograma
+
+principio
+
+  llenarLista(datos);
+
+  escribir("LISTA INICIAL%n");
+  repetir i en 1 .. n
+    escribir("\d -> \d%n",i,datos[i]);
+  fin bucle
+
+  quicksort(datos,limIzdo,limDcho);
+
+  escribir("LISTA ORDENADA%n");
+  repetir i en 1 .. n
+    escribir("\d -> \d%n",i,datos[i]);
+  fin bucle
+
+fin subprograma
+
+
+#{
+segundo subprograma: ordenacion por monticulos
+#}
+subprograma ordenarMonticulos
+
+  n : constante entero := 10;
+  datos : tabla(1..n) de entero;
+  temporal : entero;
+
+  subprograma meter (i,n: referencia entero)
+    temporal,j : entero;
+    terminar: booleano;
+  principio
+    temporal := datos[i];
+
+    mientras (j <= n) /\ ~terminar
+
+      si (j < n) /\ (datos[j] < datos[j+1]) entonces
+        j := j+1;
+      fin si
+
+      si temporal > datos[j] entonces
+        terminar := verdadero;
+      sino 
+        datos[j/2] := datos[j];
+        j := j*2;
+      fin si
+
+    fin bucle
+
+    datos[j/2] := temporal;
+
+  fin subprograma
+
+  subprograma hacerMonticulo
+  principio
+    repetir i en 1 .. n/2 descendente
+      meter(i,n);
+    fin bucle
+  fin subprograma
+
+principio
+
+  repetir i en 1 .. n
+    temporal := datos[i+1];
+    datos[i+1] := datos[1];
+    datos[1] := temporal;
+
+    meter(1,i);
+  fin bucle
+
+  repetir i en 1 .. n
+    escribir(datos[i]);
+  fin bucle
+
+fin subprograma
