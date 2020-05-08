@@ -60,13 +60,16 @@ imexportar            : importar exportar
                       | exportar
                       | /* vacio */
                       ;
-exportar              : EXPORTAR ids PUNTO_COMA
+exportar              : EXPORTAR nombre_librerias PUNTO_COMA
 importar              : importar libreria PUNTO_COMA
                       | libreria PUNTO_COMA
                       ;
-libreria              : DE LIBRERIA nombre_libreria IMPORTAR IDENTIFICADOR
+libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias;
                       | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR
                       | IMPORTAR LIBRERIA nombre_libreria
+                      ;
+nombre_librerias      : nombre_libreria COMA nombre_librerias
+                      | nombre_libreria
                       ;
 nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
                       | IDENTIFICADOR
