@@ -184,7 +184,7 @@ cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
 parametrizacion       : PARENT_A declaracion_parametrs PARENT_C
                       | /* opcional */
                       ;
-definicion_parametros : definicion_parametro definicion_parametros
+definicion_parametros : definicion_parametro COMA definicion_parametros
                       | definicion_parametro
                       ;
 definicion_parametro  : IDENTIFICADOR ASIGNACION expresion
@@ -210,11 +210,18 @@ llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
 instrucciones         : instruccion instrucciones
                       | instruccion
                       ;
-instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion
+instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion | instr_lanzar | instr_devolver | instr_vacia
                       ;
 instr_llamada         : llamada_subprograma PUNTO_COMA
                       ;
-instr_asignacion      : IDENTIFICADOR op_asignacion expresion PUNTO_COMA /* FIXME: objeto */
+instr_asignacion      : nombre_libreria op_asignacion expresion PUNTO_COMA /* FIXME: objeto */
+                      ;
+instr_lanzar          : LANZA nombre_libreria PUNTO_COMA
+                      ;
+instr_devolver        : DEVOLVER expresion PUNTO_COMA
+                      | DEVOLVER PUNTO_COMA
+                      ;
+instr_vacia           : PUNTO_COMA
                       ;
 
 /************************* BUCLES Y CONDICIONALES *************************/
@@ -254,26 +261,36 @@ clausula_finalmente   : FINALMENTE instrucciones
 expresiones           : expresion COMA expresiones
                       | expresion
                       ;
-expresion             : expresion_booleana /* FIXME: Conflicts */
+expresion             : expresion_booleana
+                      | expresion_matematica
+                      | expresion_unitaria
+                      ;
+expresion_unitaria    : RESTA primario
                       | primario
                       ;
-
+expresion_matematica  : expresion op_matematico expresion
+                      ;
 expresion_booleana    : expresion op_booleano expresion
                       ;
-op_booleano           : MENOR
+op_matematico         : MULT | DIV | POT
                       ;
-
-
-op_asignacion         : ASIG_SUMA
+op_booleano           : MENOR
+                      | NEG expresion
+                      ;
+op_asignacion         : ASIGNACION | ASIG_SUMA
                       ;
 
 /******************************* PRIMARIOS ********************************/
 
 primario              : PARENT_A expresion PARENT_C
+                      | objeto llamada_subprograma
                       | llamada_subprograma
+                      | objeto
                       | enumeracion
                       | literal
-                      | IDENTIFICADOR
+                      ;
+objeto                : objeto PUNTO nombre_libreria
+                      | nombre_libreria
                       ;
 ids                   : IDENTIFICADOR COMA ids
                       | IDENTIFICADOR
@@ -290,7 +307,7 @@ campos                : declaracion_variable campos
                       ;
 enumeracion           : CORCHETE_A expresiones CORCHETE_C
                       ;
-elementos_enumeracion : elemento_enumeracion elementos_enumeracion
+elementos_enumeracion : elemento_enumeracion COMA elementos_enumeracion
                       | elemento_enumeracion
                       ;
 elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion
