@@ -141,8 +141,8 @@ tipo_basico           : BOOLEANO
 longitud              : CORTO
                       | LARGO
                       ;
-rango                 : RANGO numerico DOS_PUNTOS_H numerico DOS_PUNTOS_H numerico
-                      | RANGO numerico DOS_PUNTOS_H numerico
+rango                 : RANGO expresion DOS_PUNTOS_H expresion DOS_PUNTOS_H expresion
+                      | RANGO expresion DOS_PUNTOS_H expresion
                       ;
 
 /********************************* CLASES *********************************/
@@ -210,9 +210,11 @@ llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
 instrucciones         : instruccion instrucciones
                       | instruccion
                       ;
-instruccion           : instr_llamada | instr_bucle | instr_capturar
+instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion
                       ;
 instr_llamada         : llamada_subprograma PUNTO_COMA
+                      ;
+instr_asignacion      : IDENTIFICADOR op_asignacion expresion PUNTO_COMA /* FIXME: objeto */
                       ;
 
 /************************* BUCLES Y CONDICIONALES *************************/
@@ -222,7 +224,7 @@ instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clausula_iteracion instruccio
                       ;
 clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo EN expresion
                       | PARA IDENTIFICADOR EN expresion
-                      | REPETIR IDENTIFICADOR especificacion_tipo
+                      | REPETIR IDENTIFICADOR especificacion_tipo /* especificacion_tipo es opcional */
                       | EN rango DESCENDENTE
                       | EN rango
                       | MIENTRAS expresion
@@ -230,7 +232,20 @@ clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo EN expresion
 
 /******************************** PRUEBAS *********************************/
 
-instr_capturar        : PRUEBA instrucciones FIN PRUEBA
+instr_capturar        : PRUEBA instrucciones clausulas FIN PRUEBA
+                      ;
+clausulas             : clausulas_excepcion clausula_finalmente
+                      | clausulas_excepcion
+                      | clausula_finalmente
+                      ;
+clausulas_excepcion   : clausulas_especificas
+                      ;
+clausulas_especificas : clausula_especifica clausulas_especificas
+                      | clausula_especifica
+                      ;
+clausula_especifica   : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
+                      ;
+clausula_finalmente   : FINALMENTE instrucciones
                       ;
 
 /****************************** EXPRESIONES *******************************/
@@ -238,19 +253,29 @@ instr_capturar        : PRUEBA instrucciones FIN PRUEBA
 expresiones           : expresion COMA expresiones
                       | expresion
                       ;
-expresion             : primario
+expresion             : expresion_booleana /* FIXME: Reduce */
+                      | primario
+                      ;
+
+expresion_booleana    : expresion op_booleano expresion
+                      ;
+op_booleano           : MENOR
+                      ;
+
+
+op_asignacion         : ASIG_SUMA
                       ;
 
 /******************************* PRIMARIOS ********************************/
 
 primario              : PARENT_A expresion PARENT_C
+                      | llamada_subprograma
                       | enumeracion
                       | literal
+                      | IDENTIFICADOR
                       ;
 ids                   : IDENTIFICADOR COMA ids
                       | IDENTIFICADOR
-                      ;
-numerico              : CTC_ENTERA | CTC_REAL
                       ;
 literal               : VERDADERO
                       | FALSO
