@@ -144,6 +144,34 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es(":="))              return ASIGNACION;
                                       if(es("::"))              return CUATRO_PUNTOS;
                                       if(es("=>"))              return FLECHA;
+
+                                      if(es("+"))               return SUMA;
+                                      if(es("-"))               return RESTA;
+                                      if(es("*"))               return MULT;
+                                      if(es("/"))               return DIV;
+                                      if(es("^"))               return POT;
+                                      if(es("\\"))              return RESTO;
+                                      if(es("="))               return EQ;
+                                      if(es(">"))               return MAYOR;
+                                      if(es("<"))               return MENOR;
+
+                                      if(es("++"))              return INC;
+                                      if(es("--"))              return DEC;
+                                      if(es("->"))              return DESPI;
+                                      if(es("<-"))              return DESPD;
+                                      if(es("<="))              return LEQ;
+                                      if(es(">="))              return GEQ;
+                                      if(es("~"))               return NEG;
+                                      if(es("/\\"))             return AND;
+                                      if(es("\\/"))             return OR;
+                                      if(es(":+"))              return ASIG_SUMA;
+                                      if(es(":-"))              return ASIG_RESTA;
+                                      if(es(":*"))              return ASIG_MULT;
+                                      if(es(":/"))              return ASIG_DIV;
+                                      if(es(":\\"))             return ASIG_RESTO;
+                                      if(es(":^"))              return ASIG_POT;
+                                      if(es(":<"))              return ASIG_DESPI;
+                                      if(es(":-"))              return ASIG_DESPD;
                                     }
 
 .                                   { logging("ERROR: caracter incorrecto"); }

@@ -14,8 +14,12 @@
   #define YYDEBUG 1
 %}
 
+%token EQ SUMA RESTA MULT DIV POT RESTO NEG MENOR MAYOR
 %token COMA CORCHETE_A CORCHETE_C DOS_PUNTOS_H DOS_PUNTOS_V LLAVE_A LLAVE_C PARENT_A PARENT_C PUNTO PUNTO_COMA
-%token ASIGNACION CUATRO_PUNTOS FLECHA
+
+%token CUATRO_PUNTOS FLECHA
+%token INC DEC DESPI DESPD LEQ GEQ NEQ AND OR
+%token ASIGNACION ASIG_SUMA ASIG_RESTA ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
 
 %token FIN PRINCIPIO PROGRAMA SUBPROGRAMA
 %token DE COMO EXPORTAR IMPORTAR LIBRERIA
@@ -45,9 +49,8 @@ programa              : definicion_programa
                       ;
 definicion_programa   : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa FIN
                       ;
-codigo_programa       : importar
+codigo_programa       : importar cuerpo_subprograma
                       ;
-
 definicion_libreria   : LIBRERIA IDENTIFICADOR PUNTO_COMA codigo_libreria FIN
                       ;
 codigo_libreria       : imexportar declaraciones
@@ -62,14 +65,14 @@ declaracion           : declaracion_objeto | declaracion_tipo | declaracion_spro
 
 /************************** IMPORTAR / EXPORTAR ***************************/
 
-imexportar            : importar exportar
-                      | importar
-                      | exportar
-                      | /* vacio */
+imexportar            : importar EXPORTAR
                       ;
 exportar              : EXPORTAR nombre_librerias PUNTO_COMA
+                      | /* opcional */
+                      ;
 importar              : importar libreria PUNTO_COMA
                       | libreria PUNTO_COMA
+                      | /* opcional */
                       ;
 libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias;
                       | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR
@@ -280,7 +283,26 @@ clausula_finalmente   : FINALMENTE instrucciones
 
 /****************************** OPERADORES ********************************/
 
-op_asignacion         : /* TODO */
+op_asignacion         : ASIGNACION
+                      | ASIG_SUMA | ASIG_RESTA | ASIG_MULT | ASIG_DIV
+                      | ASIG_RESTO | ASIG_POT | ASIG_DESPD | ASIG_DESPI
+                      ;
+op_posfijo            : INC | DEC
+                      | /* opcional */
+                      ;
+op_matematico         : SUMA | RESTA | MULT | DIV | POT | RESTO
+                      ;
+op_booleano           : EQ | MAYOR | MENOR
+                      | NEQ | LEQ | GEQ | AND | OR
+                      ;
+
+
+/****************************** OPERACIONES *******************************/
+
+expresion_matematica  : expresion op_matematico expresion
+                      ;
+expresion_booleana    : expresion op_booleano expresion
+                      | NEG expresion
                       ;
 
 /****************************** EXPRESIONES *******************************/
@@ -288,12 +310,24 @@ op_asignacion         : /* TODO */
 expresiones           : expresion expresiones
                       | expresion
                       ;
-expresion             : literal
+expresion             : expresion_condicional
+                      | expresion_potencia
+                      | expresion_matematica
+                      | expresion_booleana
+                      | primario
                       | IDENTIFICADOR
                       ;
 expresion_condicional : SI expresion ENTONCES expresion SINO expresion
                       | SI expresion ENTONCES expresion
                       | expresion
+                      ;
+expresion_potencia    : expresion_posfija POT expresion_potencia
+                      | expresion_posfija
+                      ;
+expresion_posfija     : expresion_unitaria op_posfijo
+                      ;
+expresion_unitaria    : RESTA primario
+                      | primario
                       ;
 
 /******************************* PRIMARIOS ********************************/
@@ -351,11 +385,6 @@ campo_valor           : IDENTIFICADOR FLECHA expresion
                       ;
 
 %%
-
-/*
-%token INC DEC DESPI DESPD LEQ GEQ NEQ AND OR ASIG_SUMA ASIG_RESTA
-%token ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
-*/
 
 int yyerror (char *msg) {
   fflush(stdout);
