@@ -47,7 +47,7 @@
 programa              : definicion_programa
                       | definicion_libreria
                       ;
-definicion_programa   : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa FIN
+definicion_programa   : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa
                       ;
 codigo_programa       : importar cuerpo_subprograma
                       | cuerpo_subprograma
@@ -240,10 +240,11 @@ clausulas             : clausulas_excepcion clausula_finalmente
                       ;
 clausulas_excepcion   : clausulas_especificas
                       ;
-clausulas_especificas : clausula_especifica clausulas_especificas
-                      | clausula_especifica
+clausulas_especificas : clausula_excepcion clausulas_especificas
+                      | clausula_excepcion
                       ;
-clausula_especifica   : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
+clausula_excepcion    : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
+                      | EXCEPCION instrucciones /* FIXME: Exc General aparte */
                       ;
 clausula_finalmente   : FINALMENTE instrucciones
                       ;
@@ -253,7 +254,7 @@ clausula_finalmente   : FINALMENTE instrucciones
 expresiones           : expresion COMA expresiones
                       | expresion
                       ;
-expresion             : expresion_booleana /* FIXME: Reduce */
+expresion             : expresion_booleana /* FIXME: Conflicts */
                       | primario
                       ;
 
