@@ -14,7 +14,7 @@
   #define YYDEBUG 1
 %}
 
-%token COMA DOS_PUNTOS_H DOS_PUNTOS_V PARENT_A PARENT_C PUNTO_COMA
+%token COMA CORCHETE_A CORCHETE_C DOS_PUNTOS_H DOS_PUNTOS_V LLAVE_A LLAVE_C PARENT_A PARENT_C PUNTO PUNTO_COMA
 %token ASIGNACION CUATRO_PUNTOS FLECHA
 
 %token FIN PRINCIPIO PROGRAMA SUBPROGRAMA
@@ -27,6 +27,10 @@
 %token PUBLICO PROTEGIDO PRIVADO
 %token ABSTRACTO CLASE CONSTRUCTOR DESTRUCTOR ESPECIFICO FINAL GENERICO ULTIMA
 
+%token SI ENTONCES SINO CASOS CUANDO OTRO
+%token PARA EN REPETIR MIENTRAS DESCENDENTE BUCLE
+%token SALIR SIGUIENTE
+%token LANZA PRUEBA EXCEPCION FINALMENTE
 %token DEVOLVER REFERENCIA VALOR
 
 %token IDENTIFICADOR
@@ -51,7 +55,7 @@ codigo_libreria       : imexportar declaraciones
 declaraciones         : declaracion declaraciones
                       | declaracion
                       ;
-declaracionesop       : declaraciones
+declaraciones_op      : declaraciones
                       | /* opcional */
 declaracion           : declaracion_objeto | declaracion_tipo | declaracion_sprograma
                       ;
@@ -96,6 +100,9 @@ declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
 
 /************************ ESPECIFICACIÓN DE TIPOS *************************/
 
+especificacion_tipo_op: DOS_PUNTOS_V especificacion_tipo
+                      | /* opcional */
+                      ;
 especificacion_tipo   : IDENTIFICADOR | tipo_no_estructurado
                       ;
 tipo_estructurado     : tipo_registro | tipo_enumerado | clase
@@ -169,7 +176,14 @@ declaracion_sprograma : SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBP
                       ;
 cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado
                       ;
-cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
+cuerpo_subprograma    : declaraciones_op PRINCIPIO instrucciones FIN
+                      ;
+definicion_parametros : definicion_parametro definicion_parametros
+                      | definicion_parametro
+                      | /* opcional */
+                      ;
+definicion_parametro  : IDENTIFICADOR ASIGNACION expresion
+                      | expresion
                       ;
 parametrizacion       : PARENT_A declaracion_parametrs PARENT_C
                       | /* opcional */
@@ -186,20 +200,103 @@ modo                  : VALOR | REFERENCIA
 tipo_resultado        : DEVOLVER especificacion_tipo
                       | /* opcional */
                       ;
+llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
 
 /***************************** INSTRUCCIONES ******************************/
 
-instrucciones         :
-                      ; 
+instrucciones         : instruccion instrucciones
+                      | instruccion
+                      ;
+instruccion           : instr_asignacion | instr_devolver | instr_llamada
+                      | instr_si | instr_casos | instr_bucle | instr_interrupcion
+                      | instr_lanzar | instr_capturar
+                      ;
+instr_asignacion      : objeto op_asignacion expresion PUNTO_COMA
+                      ;
+instr_devolver        : DEVOLVER expresion PUNTO_COMA
+                      | DEVOLVER PUNTO_COMA
+                      ;
+instr_llamada         : llamada_subprograma PUNTO_COMA
+                      ;
+instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI
+                      | SI expresion ENTONCES instrucciones FIN SI
+                      ;
+instr_casos           : CASOS expresion ES casos FIN CASOS
+                      ;
+instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clasula_iteracion instrucciones FIN BUCLE
+                      | clasula_iteracion instrucciones FIN BUCLE
+                      ;
+instr_interrupcion    : SIGUIENTE cuando PUNTO_COMA
+                      | SALIR DE IDENTIFICADOR cuando PUNTO_COMA
+                      | SALIR cuando PUNTO_COMA
+                      ;
+instr_lanzar          : LANZA nombre_libreria PUNTO_COMA
+                      ;
+instr_capturar        : PRUEBA instrucciones clausulas FIN PRUEBA
+                      ;
+                      
+casos                 : caso casos
+                      | caso
+                      ;
+caso                  : CUANDO entradas FLECHA instrucciones
+                      ;
+entradas              : entrada DOS_PUNTOS_V entradas
+                      | entrada
+                      ;
+entrada               : expresion DOS_PUNTOS_H expresion
+                      | expresion
+                      | OTRO
+                      ;
+clasula_iteracion     : PARA IDENTIFICADOR especificacion_tipo_op EN expresion
+                      | REPETIR IDENTIFICADOR especificacion_tipo_op
+                      | EN rango descendiente_op
+                      | MIENTRAS expresion
+descendiente_op       : DESCENDENTE
+                      | /* opcional */
+                      ;
+cuando                : CUANDO expresion
+                      | /* opcional */
+                      ;
+clausulas             : clausula_excepcion clausula_finalmente
+                      | clausula_finalmente
+                      | clausula_excepcion
+                      ;
+clausula_excepcion    : clausulas_especificas clausula_general
+                      ;
+clausulas_especificas : clausula_especifica clausulas_especificas
+                      | clausula_especifica
+                      | /* opcional */
+                      ;
+clausula_especifica   : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
+                      ;
+clausula_general      : EXCEPCION instrucciones
+                      ;
+clausula_finalmente   : FINALMENTE instrucciones
+                      ;
+
+/****************************** OPERADORES ********************************/
+
+op_asignacion         : /* TODO */
+                      ;
 
 /****************************** EXPRESIONES *******************************/
 
+expresiones           : expresion expresiones
+                      | expresion
+                      ;
 expresion             : literal
                       | IDENTIFICADOR
                       ;
 
 /******************************* PRIMARIOS ********************************/
 
+primario              : PARENT_A expresion PARENT_C
+                      | objeto llamada_subprograma
+                      | llamada_subprograma
+                      | enumeracion
+                      | objeto
+                      | literal
+                      ;
 ids                   : IDENTIFICADOR COMA ids
                       | IDENTIFICADOR
                       ;
@@ -212,8 +309,18 @@ literal               : VERDADERO
                       | CTC_ENTERA
                       | CTC_REAL
                       ;
+cadenas               : CTC_CADENA cadenas
+                      | cadenas
+                      ;
+objeto                : nombre_libreria
+                      | objeto PUNTO IDENTIFICADOR
+                      | objeto CORCHETE_A expresiones CORCHETE_C
+                      | objeto LLAVE_A cadenas LLAVE_C
+                      ;
 campos                : declaracion_variable campos
                       | declaracion_variable
+                      ;
+enumeracion           : /* TODO */
                       ;
 elementos_enumeracion : elemento_enumeracion elementos_enumeracion
                       | elemento_enumeracion
@@ -229,14 +336,11 @@ campo_valor           : IDENTIFICADOR FLECHA expresion
 %%
 
 /*
-%token ABSTRACTO  BUCLE  CASOS CLASE   CONSTRUCTOR 
-%token CUANDO  DESCENDENTE DESTRUCTOR DEVOLVER DICCIONARIO EN ENTERO ENTONCES
-%token ENUMERACION  ESPECIFICO EXCEPCION    FINAL FINALMENTE GENERICO
-%token   LANZA  LISTA MIENTRAS OBJETO OTRO PARA PRINCIPIO PRIVADO
-%token  PROTEGIDO PRUEBA PUBLICO   REFERENCIA REGISTRO REPETIR SALIR
-%token SI  SIGUIENTE SINO SUBPROGRAMA TABLA  ULTIMA VALOR  
-%token      
-%token  FLECHA INC DEC DESPI DESPD LEQ GEQ NEQ AND OR ASIG_SUMA ASIG_RESTA
+%token ENUMERACION EXCEPCION FINALMENTE
+%token LANZA
+%token PRUEBA SALIR
+%token SIGUIENTE VALOR
+%token INC DEC DESPI DESPD LEQ GEQ NEQ AND OR ASIG_SUMA ASIG_RESTA
 %token ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
 */
 
