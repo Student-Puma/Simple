@@ -223,8 +223,8 @@ instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones F
                       ;
 instr_casos           : CASOS expresion ES casos FIN CASOS
                       ;
-instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clasula_iteracion instrucciones FIN BUCLE
-                      | clasula_iteracion instrucciones FIN BUCLE
+instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clausula_iteracion instrucciones FIN BUCLE
+                      | clausula_iteracion instrucciones FIN BUCLE
                       ;
 instr_interrupcion    : SIGUIENTE cuando PUNTO_COMA
                       | SALIR DE IDENTIFICADOR cuando PUNTO_COMA
@@ -247,10 +247,14 @@ entrada               : expresion DOS_PUNTOS_H expresion
                       | expresion
                       | OTRO
                       ;
-clasula_iteracion     : PARA IDENTIFICADOR especificacion_tipo_op EN expresion
+clausulas_iteracion   : clausula_iteracion clausulas_iteracion
+                      | clausula_iteracion
+                      ;
+clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo_op EN expresion
                       | REPETIR IDENTIFICADOR especificacion_tipo_op
                       | EN rango descendiente_op
                       | MIENTRAS expresion
+                      ;
 descendiente_op       : DESCENDENTE
                       | /* opcional */
                       ;
@@ -265,7 +269,7 @@ clausula_excepcion    : clausulas_especificas clausula_general
                       ;
 clausulas_especificas : clausula_especifica clausulas_especificas
                       | clausula_especifica
-                      | /* opcional */
+                      | /* opcional */ /* FIXME */
                       ;
 clausula_especifica   : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
                       ;
@@ -286,6 +290,10 @@ expresiones           : expresion expresiones
                       ;
 expresion             : literal
                       | IDENTIFICADOR
+                      ;
+expresion_condicional : SI expresion ENTONCES expresion SINO expresion
+                      | SI expresion ENTONCES expresion
+                      | expresion
                       ;
 
 /******************************* PRIMARIOS ********************************/
@@ -310,17 +318,20 @@ literal               : VERDADERO
                       | CTC_REAL
                       ;
 cadenas               : CTC_CADENA cadenas
-                      | cadenas
+                      | CTC_CADENA
                       ;
-objeto                : nombre_libreria
-                      | objeto PUNTO IDENTIFICADOR
+objeto                : objeto PUNTO IDENTIFICADOR
                       | objeto CORCHETE_A expresiones CORCHETE_C
                       | objeto LLAVE_A cadenas LLAVE_C
+                      | nombre_libreria
                       ;
 campos                : declaracion_variable campos
                       | declaracion_variable
                       ;
-enumeracion           : /* TODO */
+enumeracion           : CORCHETE_A expresion_condicional clausulas_iteracion CORCHETE_C
+                      | CORCHETE_A expresiones CORCHETE_C
+                      | LLAVE_A campos_valor LLAVE_C
+                      | LLAVE_A claves_valor LLAVE_C
                       ;
 elementos_enumeracion : elemento_enumeracion elementos_enumeracion
                       | elemento_enumeracion
@@ -328,7 +339,13 @@ elementos_enumeracion : elemento_enumeracion elementos_enumeracion
 elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion
                       | IDENTIFICADOR
                       ;
+claves_valor          : clave_valor claves_valor
+                      | clave_valor
+                      ;
 clave_valor           : CTC_CADENA FLECHA expresion
+                      ;
+campos_valor          : campo_valor campos_valor
+                      | campo_valor
                       ;
 campo_valor           : IDENTIFICADOR FLECHA expresion
                       ;
@@ -336,10 +353,6 @@ campo_valor           : IDENTIFICADOR FLECHA expresion
 %%
 
 /*
-%token ENUMERACION EXCEPCION FINALMENTE
-%token LANZA
-%token PRUEBA SALIR
-%token SIGUIENTE VALOR
 %token INC DEC DESPI DESPD LEQ GEQ NEQ AND OR ASIG_SUMA ASIG_RESTA
 %token ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
 */

@@ -149,23 +149,3 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 .                                   { logging("ERROR: caracter incorrecto"); }
 
 %%
-
-/*
-int yywrap() { return(1); }
-
-int main(int argc, char *argv[]) {
-
-  if (argc < 2)
-  {
-    fprintf(stderr, "Uso: ./simple <archivo>\n");
-    exit(1);
-  }
-  else
-  {
-    yyin = fopen(argv[1],"r");
-    yylex();
-  }
-
-  return 0;
-}
-*/
