@@ -14,8 +14,9 @@
   #define YYDEBUG 1
 %}
 
-%token EQ SUMA RESTA MULT DIV POT RESTO NEG MENOR MAYOR
+/* %token '=' '+' '-' '*' '/' '~' '<' '>' */
 /* %token ',' '[' ']' ':' '{' '}' '(' ')' '.' ';' */
+%token POT RESTO
 
 %token CUATRO_PUNTOS FLECHA DOS_PUNTOS
 %token INC DEC DESPI DESPD LEQ GEQ NEQ AND OR
@@ -39,8 +40,6 @@
 
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
-
-%left SUMA RESTA MULT DIV
 
 %%
 
@@ -215,7 +214,7 @@ instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asi
                       ;
 instr_llamada         : llamada_subprograma ';'
                       ;
-instr_asignacion      : objeto op_asignacion expresion ';'
+instr_asignacion      : objeto ASIGNACION expresion ';' /* FIXME: Falla con operaciones aritmeticas */
                       ;
 instr_lanzar          : LANZA nombre_libreria ';'
                       ;
@@ -269,27 +268,75 @@ clausula_finalmente   : FINALMENTE instrucciones
 expresiones           : expresion ',' expresiones
                       | expresion
                       ;
-expresion             : expresion_booleana      /* FIXME: Todos los shift/reduce en las expresiones */
-                      | expresion_matematica
-                      | expresion_unitaria
-                      ;
 expresion_condicional : SI expresion ENTONCES expresion SINO expresion
                       | SI expresion ENTONCES expresion
                       ;
-expresion_unitaria    : RESTA primario
-                      | primario
-                      ;
-expresion_matematica  : expresion op_matematico expresion
-                      ;
-expresion_booleana    : expresion op_booleano expresion
-                      ;
-op_matematico         : SUMA | RESTA | MULT | DIV | POT | RESTO
-                      ;
-op_booleano           : EQ | MAYOR | MENOR | LEQ | GEQ | AND | OR
-                      | NEG expresion
-                      ;
-op_asignacion         : ASIGNACION | ASIG_SUMA
-                      ;
+
+/* TODO: Refractor */
+                      
+expresion
+		: and_logico
+		| expresion OR and_logico		 { printf ("  or_logico ->  or_logico '\\/' and_logico\n"); }
+		;
+
+and_logico
+		: negacion
+		| and_logico AND negacion		 { printf ("  and_logico ->  and_logico '/\\' negacion\n"); }
+		;
+
+negacion
+		: comparacion
+		| '~' comparacion { printf ("  negacion -> '~' comparacion\n"); }
+		;
+
+comparacion
+		: desplazamiento
+		| desplazamiento '>' desplazamiento { printf ("  comparacion ->  desplazamiento '>' desplazamiento\n"); }
+		| desplazamiento '<' desplazamiento { printf ("  comparacion ->  desplazamiento '<' desplazamiento\n"); }
+		| desplazamiento '=' desplazamiento { printf ("  comparacion ->  desplazamiento '=' desplazamiento\n"); }
+		| desplazamiento LEQ desplazamiento { printf ("  comparacion ->  desplazamiento '<=' desplazamiento\n"); }
+		| desplazamiento GEQ desplazamiento { printf ("  comparacion ->  desplazamiento '>=' desplazamiento\n"); }
+		| desplazamiento NEQ desplazamiento { printf ("  comparacion ->  desplazamiento '<>' desplazamiento\n"); }
+		;
+
+desplazamiento
+		:	suma_resta
+		| desplazamiento DESPD suma_resta { printf ("  desplazamiento ->  desplazamiento '->' suma_resta\n"); }
+		| desplazamiento DESPI suma_resta { printf ("  desplazamiento ->  desplazamiento '<-' suma_resta\n"); }
+		;
+
+suma_resta
+		: multi_div 
+		| suma_resta '-' multi_div { printf ("  suma_resta ->  suma_resta '-' multi_div\n"); }
+		| suma_resta '+' multi_div { printf ("  suma_resta ->  suma_resta '+' multi_div\n"); }
+		;
+
+multi_div
+		: potencia
+		| multi_div '*' potencia { printf ("  multi_div ->  multi_div '*' potencia\n"); }
+		| multi_div '/' potencia { printf ("  multi_div ->  multi_div '/' potencia\n"); } 
+		| multi_div RESTO potencia { printf ("  multi_div ->  multi_div '\\' potencia\n"); } 
+		;
+
+potencia
+		: expresion_posfija
+		| expresion_posfija POT potencia { printf ("  potencia ->  expr_posfija '**' potencia\n"); }
+		;
+
+expresion_posfija 
+		: expresion_unaria
+		| expresion_unaria operador_posfijo	{ printf ("  expresion posfija -> expr_unaria op_posfijo\n"); }
+		;
+
+operador_posfijo 
+		: INC		{ printf ("  operador posfijo -> '++'\n"); } 
+		| DEC		{ printf ("  operador posfijo -> '--'\n"); }
+		;
+
+expresion_unaria 		
+		: primario			{ printf ("  expresion unaria -> primario\n"); }
+		| '-' primario	{ printf ("  expresion unaria -> '-' primario\n"); }
+		;
 
 /******************************* PRIMARIOS ********************************/
 

@@ -135,19 +135,15 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {operator}                          { logging("operador");
                                       if(es(":="))              return ASIGNACION;
                                       if(es("::"))              return CUATRO_PUNTOS;
+                                      if(es("=") || es("~"))    return yytext[0];
                                       if(es("[") || es("]"))    return yytext[0];
                                       if(es("{") || es("}"))    return yytext[0];
+                                      if(es("+") || es("-"))    return yytext[0];
+                                      if(es("*") || es("/"))    return yytext[0];
+                                      if(es("<") || es(">"))    return yytext[0];
                                       
-
-                                      if(es("+"))               return SUMA;
-                                      if(es("-"))               return RESTA;
-                                      if(es("*"))               return MULT;
-                                      if(es("/"))               return DIV;
                                       if(es("^"))               return POT;
                                       if(es("\\"))              return RESTO;
-                                      if(es("="))               return EQ;
-                                      if(es(">"))               return MAYOR;
-                                      if(es("<"))               return MENOR;
 
                                       if(es("++"))              return INC;
                                       if(es("--"))              return DEC;
@@ -155,7 +151,6 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("<-"))              return DESPD;
                                       if(es("<="))              return LEQ;
                                       if(es(">="))              return GEQ;
-                                      if(es("~"))               return NEG;
                                       if(es("/\\"))             return AND;
                                       if(es("\\/"))             return OR;
                                       if(es(":+"))              return ASIG_SUMA;
