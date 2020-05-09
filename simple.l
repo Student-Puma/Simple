@@ -128,22 +128,16 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
 {b8}+|{digit}+|{b16}+               { logging("ctc entera");    return CTC_ENTERA; }
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real");      return CTC_REAL; }
 {delimiter}                         { logging("delimitador");
-                                      if(es(","))               return COMA;
-                                      if(es(".."))              return DOS_PUNTOS_H;
-                                      if(es(":"))               return DOS_PUNTOS_V;
-                                      if(es("{"))               return LLAVE_A;
-                                      if(es("}"))               return LLAVE_C;
-                                      if(es("("))               return PARENT_A;
-                                      if(es(")"))               return PARENT_C;
-                                      if(es("."))               return PUNTO;
-                                      if(es(";"))               return PUNTO_COMA;
+                                      if(es(".."))              return DOS_PUNTOS;
+                                      if(es("=>"))              return FLECHA;
+                                      else                      return yytext[0];
                                     }
 {operator}                          { logging("operador");
                                       if(es(":="))              return ASIGNACION;
                                       if(es("::"))              return CUATRO_PUNTOS;
-                                      if(es("=>"))              return FLECHA;
-                                      if(es("["))               return CORCHETE_A;
-                                      if(es("]"))               return CORCHETE_C;
+                                      if(es("[") || es("]"))    return yytext[0];
+                                      if(es("{") || es("}"))    return yytext[0];
+                                      
 
                                       if(es("+"))               return SUMA;
                                       if(es("-"))               return RESTA;

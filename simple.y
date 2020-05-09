@@ -15,9 +15,9 @@
 %}
 
 %token EQ SUMA RESTA MULT DIV POT RESTO NEG MENOR MAYOR
-%token COMA CORCHETE_A CORCHETE_C DOS_PUNTOS_H DOS_PUNTOS_V LLAVE_A LLAVE_C PARENT_A PARENT_C PUNTO PUNTO_COMA
+/* %token ',' '[' ']' ':' '{' '}' '(' ')' '.' ';' */
 
-%token CUATRO_PUNTOS FLECHA
+%token CUATRO_PUNTOS FLECHA DOS_PUNTOS
 %token INC DEC DESPI DESPD LEQ GEQ NEQ AND OR
 %token ASIGNACION ASIG_SUMA ASIG_RESTA ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
 
@@ -49,13 +49,13 @@
 programa              : definicion_programa
                       | definicion_libreria
                       ;
-definicion_programa   : PROGRAMA IDENTIFICADOR PUNTO_COMA codigo_programa
+definicion_programa   : PROGRAMA IDENTIFICADOR ';' codigo_programa
                       ;
 codigo_programa       : importar cuerpo_subprograma
                       | cuerpo_subprograma
                       ;
 
-definicion_libreria   : LIBRERIA IDENTIFICADOR PUNTO_COMA codigo_libreria FIN
+definicion_libreria   : LIBRERIA IDENTIFICADOR ';' codigo_libreria
                       ;
 codigo_libreria       : imexportar declaraciones
                       ;
@@ -73,15 +73,15 @@ imexportar            : importar exportar
                       | exportar
                       | /* vacio */
                       ;
-exportar              : EXPORTAR nombre_librerias PUNTO_COMA
-importar              : importar libreria PUNTO_COMA
-                      | libreria PUNTO_COMA
+exportar              : EXPORTAR nombre_librerias ';'
+importar              : importar libreria ';'
+                      | libreria ';'
                       ;
 libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias
                       | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR
                       | IMPORTAR LIBRERIA nombre_libreria
                       ;
-nombre_librerias      : nombre_libreria COMA nombre_librerias
+nombre_librerias      : nombre_libreria ',' nombre_librerias
                       | nombre_libreria
                       ;
 nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
@@ -92,15 +92,15 @@ nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
 
 declaracion_objeto    : declaracion_constante | declaracion_variable
                       ;
-declaracion_constante : ids DOS_PUNTOS_V CONSTANTE especificacion_tipo ASIGNACION expresion PUNTO_COMA
+declaracion_constante : ids ':' CONSTANTE especificacion_tipo ASIGNACION expresion ';'
                       ;
-declaracion_variable  : ids DOS_PUNTOS_V especificacion_tipo ASIGNACION expresion PUNTO_COMA
-                      | ids DOS_PUNTOS_V especificacion_tipo PUNTO_COMA
+declaracion_variable  : ids ':' especificacion_tipo ASIGNACION expresion ';'
+                      | ids ':' especificacion_tipo ';'
                       ;
 
 /************************** DECLARACIÓN DE TIPOS **************************/
 
-declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado PUNTO_COMA
+declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado ';'
                       | TIPO IDENTIFICADOR ES tipo_estructurado
                       ;
 
@@ -128,7 +128,7 @@ tipo_escalar          : SIGNO tipo_basico longitud rango
                       | tipo_basico rango
                       | tipo_basico
                       ;
-tipo_tabla            : TABLA PARENT_A expresion DOS_PUNTOS_H expresion PARENT_C DE especificacion_tipo
+tipo_tabla            : TABLA '(' expresion DOS_PUNTOS expresion ')' DE especificacion_tipo
                       | LISTA DE especificacion_tipo
                       ;
 tipo_diccionario      : DICCIONARIO DE especificacion_tipo
@@ -142,8 +142,8 @@ tipo_basico           : BOOLEANO
 longitud              : CORTO
                       | LARGO
                       ;
-rango                 : RANGO expresion DOS_PUNTOS_H expresion DOS_PUNTOS_H expresion
-                      | RANGO expresion DOS_PUNTOS_H expresion
+rango                 : RANGO expresion DOS_PUNTOS expresion DOS_PUNTOS expresion
+                      | RANGO expresion DOS_PUNTOS expresion
                       ;
 
 /********************************* CLASES *********************************/
@@ -151,7 +151,7 @@ rango                 : RANGO expresion DOS_PUNTOS_H expresion DOS_PUNTOS_H expr
 clase                 : CLASE ULTIMA superclases decl_componentes FIN CLASE
                       | CLASE superclases decl_componentes FIN CLASE
                       ;
-superclases           : PARENT_A ids PARENT_C
+superclases           : '(' ids ')'
                       | /* opcional */
                       ;
 decl_componentes      : decl_componente decl_componentes
@@ -182,28 +182,28 @@ cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado
                       ;
 cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
                       ;
-parametrizacion       : PARENT_A declaracion_parametrs PARENT_C
+parametrizacion       : '(' declaracion_parametrs ')'
                       | /* opcional */
                       ;
-definicion_parametros : definicion_parametro COMA definicion_parametros
+definicion_parametros : definicion_parametro ',' definicion_parametros
                       | definicion_parametro
                       ;
 definicion_parametro  : IDENTIFICADOR ASIGNACION expresion
                       | expresion
                       ;
-declaracion_parametrs : paramtros PUNTO_COMA declaracion_parametrs
+declaracion_parametrs : paramtros ';' declaracion_parametrs
                       | paramtros
                       ;
-paramtros             : ids DOS_PUNTOS_V modo especificacion_tipo ASIGNACION expresion
-                      | ids DOS_PUNTOS_V modo especificacion_tipo
+paramtros             : ids ':' modo especificacion_tipo ASIGNACION expresion
+                      | ids ':' modo especificacion_tipo
                       ;
 modo                  : VALOR | REFERENCIA
                       | /* opcional */
                       ;
 tipo_resultado        : DEVOLVER especificacion_tipo
                       ;
-llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
-                      | nombre_libreria PARENT_A PARENT_C
+llamada_subprograma   : nombre_libreria '(' definicion_parametros ')'
+                      | nombre_libreria '(' ')'
                       ;
 
 /***************************** INSTRUCCIONES ******************************/
@@ -213,16 +213,16 @@ instrucciones         : instruccion instrucciones
                       ;
 instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion | instr_lanzar | instr_devolver | instr_vacia | instr_si
                       ;
-instr_llamada         : llamada_subprograma PUNTO_COMA
+instr_llamada         : llamada_subprograma ';'
                       ;
-instr_asignacion      : objeto op_asignacion expresion PUNTO_COMA
+instr_asignacion      : objeto op_asignacion expresion ';'
                       ;
-instr_lanzar          : LANZA nombre_libreria PUNTO_COMA
+instr_lanzar          : LANZA nombre_libreria ';'
                       ;
-instr_devolver        : DEVOLVER expresion PUNTO_COMA
-                      | DEVOLVER PUNTO_COMA
+instr_devolver        : DEVOLVER expresion ';'
+                      | DEVOLVER ';'
                       ;
-instr_vacia           : PUNTO_COMA
+instr_vacia           : ';'
                       ;
 
 /************************* BUCLES Y CONDICIONALES *************************/
@@ -230,15 +230,18 @@ instr_vacia           : PUNTO_COMA
 instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI
                       | SI expresion ENTONCES instrucciones FIN SI
                       ;
-instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clausula_iteracion instrucciones FIN BUCLE
+instr_bucle           : IDENTIFICADOR ':' clausula_iteracion instrucciones FIN BUCLE
                       | clausula_iteracion instrucciones FIN BUCLE
                       ;
-clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo EN expresion
+clausulas_iteracion   : clausula_iteracion clausulas_iteracion
+                      | clausula_iteracion
+                      ;
+clausula_iteracion    : PARA IDENTIFICADOR ':' especificacion_tipo EN expresion
                       | PARA IDENTIFICADOR EN expresion
-                      | REPETIR IDENTIFICADOR especificacion_tipo EN rango DESCENDENTE /* especificacion_tipo es opcional */
-                      | REPETIR IDENTIFICADOR especificacion_tipo EN rango /* especificacion_tipo es opcional */
-                      | REPETIR IDENTIFICADOR EN rango DESCENDENTE /* especificacion_tipo es opcional */
-                      | REPETIR IDENTIFICADOR EN rango /* especificacion_tipo es opcional */
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango DESCENDENTE
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango
+                      | REPETIR IDENTIFICADOR EN rango DESCENDENTE
+                      | REPETIR IDENTIFICADOR EN rango
                       | MIENTRAS expresion
                       ;
 
@@ -255,7 +258,7 @@ clausulas_excepcion   : clausulas_especificas
 clausulas_especificas : clausula_excepcion clausulas_especificas
                       | clausula_excepcion
                       ;
-clausula_excepcion    : EXCEPCION PARENT_A nombre_libreria PARENT_C instrucciones
+clausula_excepcion    : EXCEPCION '(' nombre_libreria ')' instrucciones
                       | EXCEPCION instrucciones /* FIXME: Exc General aparte */
                       ;
 clausula_finalmente   : FINALMENTE instrucciones
@@ -263,12 +266,15 @@ clausula_finalmente   : FINALMENTE instrucciones
 
 /****************************** EXPRESIONES *******************************/
 
-expresiones           : expresion COMA expresiones
+expresiones           : expresion ',' expresiones
                       | expresion
                       ;
 expresion             : expresion_booleana      /* FIXME: Todos los shift/reduce en las expresiones */
                       | expresion_matematica
                       | expresion_unitaria
+                      ;
+expresion_condicional : SI expresion ENTONCES expresion SINO expresion
+                      | SI expresion ENTONCES expresion
                       ;
 expresion_unitaria    : RESTA primario
                       | primario
@@ -287,18 +293,18 @@ op_asignacion         : ASIGNACION | ASIG_SUMA
 
 /******************************* PRIMARIOS ********************************/
 
-primario              : PARENT_A expresion PARENT_C
+primario              : '(' expresion ')'
                       | objeto llamada_subprograma
                       | llamada_subprograma
                       | objeto
                       | enumeracion
                       | literal
                       ;
-objeto                : objeto PUNTO nombre_libreria
-                      | objeto CORCHETE_A expresiones CORCHETE_C
+objeto                : objeto '.' nombre_libreria
+                      | objeto '[' expresiones ']'
                       | nombre_libreria
                       ;
-ids                   : IDENTIFICADOR COMA ids
+ids                   : IDENTIFICADOR ',' ids
                       | IDENTIFICADOR
                       ;
 literal               : VERDADERO
@@ -311,13 +317,27 @@ literal               : VERDADERO
 campos                : declaracion_variable campos
                       | declaracion_variable
                       ;
-enumeracion           : CORCHETE_A expresiones CORCHETE_C
+
+enumeracion           : '[' expresion_condicional clausulas_iteracion ']'
+                      | '[' expresiones ']'
+                      | '{' campos_enum '}'
+                      | '{' claves_enum '}'
                       ;
-elementos_enumeracion : elemento_enumeracion COMA elementos_enumeracion
+elementos_enumeracion : elemento_enumeracion ',' elementos_enumeracion
                       | elemento_enumeracion
                       ;
 elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion
                       | IDENTIFICADOR
+                      ;
+campos_enum           : campo_valor ',' campos_enum
+                      | campo_valor
+                      ;
+claves_enum           : clave_valor ',' claves_enum
+                      | clave_valor
+                      ;
+clave_valor           : CTC_CADENA FLECHA expresion
+                      ;
+campo_valor           : IDENTIFICADOR FLECHA expresion
                       ;
 
 %%
