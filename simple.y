@@ -3,8 +3,8 @@
   #include <stdlib.h>
   #include <string.h>
 
-  int enabledlogging;
-  int yyerror(char * s);
+  int yyerror(char * s); 
+  void reduction(char * a, char * b);
   
   extern FILE *yyin;
   extern int yylex();
@@ -12,6 +12,10 @@
   extern char * yytext;
 
   #define YYDEBUG 1
+
+  /* Debug options */
+  int yydebug = 0;          // Bison
+  int enabledlogging = 1;   // Mensajes del lexer
 %}
 
 /* %token '=' '+' '-' '*' '/' '~' '<' '>' */
@@ -41,135 +45,152 @@
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
 
+
+%left ASIGNACION ASIG_SUMA ASIG_RESTA ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
+%left '+' '-'
+%left '*' '/'
+%right UMINUS
+
 %%
 
 /******************************** PROGRAMA ********************************/
 
-programa              : definicion_programa
-                      | definicion_libreria
+programa              : definicion_programa                                                         { fprintf(stdout, "EXITO :: programa -> definicion_programa\n"); }
+                      | definicion_libreria                                                         { fprintf(stdout, "EXITO :: programa -> definicion_libreria\n"); }
                       ;
-definicion_programa   : PROGRAMA IDENTIFICADOR ';' codigo_programa
+definicion_programa   : PROGRAMA IDENTIFICADOR ';' codigo_programa                                  { reduction("definicion_programa", "PROGRAMA ID ; codigo_programa"); }
                       ;
-codigo_programa       : importar cuerpo_subprograma
-                      | cuerpo_subprograma
+codigo_programa       : importar cuerpo_subprograma                                                 { reduction("codigo_programa", "importar cuerpo_subprograma"); }
+                      | cuerpo_subprograma                                                          { reduction("codigo_programa", "cuerpo_subprograma"); }
                       ;
-
-definicion_libreria   : LIBRERIA IDENTIFICADOR ';' codigo_libreria
+definicion_libreria   : LIBRERIA IDENTIFICADOR ';' codigo_libreria                                  { reduction("definicion_libreria", "LIBRERIA ID ; codigo_libreria"); }
                       ;
-codigo_libreria       : imexportar declaraciones
+codigo_libreria       : imexportar declaraciones                                                    { reduction("codigo_libreria", "importar|exportar declaraciones"); }
                       ;
-declaraciones         : declaracion declaraciones
-                      | declaracion
+declaraciones         : declaracion declaraciones                                                   { /* reduction("declaraciones", "declaracion declaraciones"); */ }
+                      | declaracion                                                                 { /* reduction("declaraciones", "declaracion"); */ }
                       ;
-declaracionesop       : declaraciones
-                      | /* opcional */
-declaracion           : declaracion_objeto | declaracion_tipo | declaracion_sprograma
+declaracionesop       : declaraciones                                                               { /* reduction("declaracionesop", "declaraciones"); */ }
+                      | /* opcional */                                                              { /* reduction("declaracionesop", "< vacio >"); */ }
                       ;
-
-
-imexportar            : importar exportar
-                      | importar
-                      | exportar
-                      | /* vacio */
+declaracion           : declaracion_objeto                                                          { reduction("declaracion", "declaracion_objeto"); }
+                      | declaracion_tipo                                                            { reduction("declaracion", "declaracion_tipo"); }
+                      | declaracion_sprograma                                                       { reduction("declaracion", "declaracion_subprograma"); }
                       ;
-exportar              : EXPORTAR nombre_librerias ';'
-importar              : importar libreria ';'
-                      | libreria ';'
+imexportar            : importar exportar                                                           { /* reduction("importar|exportar", "importar exportar"); */ }
+                      | importar                                                                    { /* reduction("importar|exportar", "importar"); */ }
+                      | exportar                                                                    { /* reduction("importar|exportar", "exportar"); */ }
+                      | /* vacio */                                                                 { /* reduction("importar|exportar", "< vacio >"); */ }
                       ;
-libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias
-                      | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR
-                      | IMPORTAR LIBRERIA nombre_libreria
+exportar              : EXPORTAR nombre_librerias ';'                                               { reduction("exportar", "EXPORTAR nombres ;"); }
                       ;
-nombre_librerias      : nombre_libreria ',' nombre_librerias
-                      | nombre_libreria
+importar              : importar libreria ';'                                                       { /* reduction("importar", "importar libreria ;"); */ }
+                      | libreria ';'                                                                { /* reduction("importar", "libreria ;"); */ }
                       ;
-nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria
-                      | IDENTIFICADOR
+libreria              : DE LIBRERIA nombre_libreria IMPORTAR nombre_librerias                       { reduction("libreria", "DE LIBRERIA nombre_libreria IMPORTAR nombres"); }
+                      | IMPORTAR LIBRERIA nombre_libreria COMO IDENTIFICADOR                        { reduction("libreria", "IMPORTAR LIBRERIA nombre_libreria COMO ID"); }
+                      | IMPORTAR LIBRERIA nombre_libreria                                           { reduction("libreria", "IMPORTAR LIBRERIA nombre_libreria"); }
+                      ;
+nombre_librerias      : nombre_libreria ',' nombre_librerias                                        { /* reduction("nombres", "nombre , nombres"); */ }
+                      | nombre_libreria                                                             { /* reduction("nombres", "nombre"); */ }
+                      ;
+nombre_libreria       : IDENTIFICADOR CUATRO_PUNTOS nombre_libreria                                 { /* reduction("nombre", "ID :: nombre"); */ }
+                      | IDENTIFICADOR                                                               { /* reduction("nombre", "ID"); */ }
                       ;
 
 /************************* DECLARACIÓN DE OBJETOS *************************/
 
-declaracion_objeto    : declaracion_constante | declaracion_variable
+declaracion_objeto    : declaracion_constante                                                       { reduction("declaracion_objeto", "declaracion_constante"); }
+                      | declaracion_variable                                                        { reduction("declaracion_objeto", "declaracion_variable"); }
                       ;
-declaracion_constante : ids ':' CONSTANTE especificacion_tipo ASIGNACION expresion ';'
+declaracion_constante : ids ':' CONSTANTE especificacion_tipo ASIGNACION expresion ';'              { reduction("declaracion_constante", "ID : CONSTANTE especificacion_tipo ASIGNACION expresion ;"); }
                       ;
-declaracion_variable  : ids ':' especificacion_tipo ASIGNACION expresion ';'
-                      | ids ':' especificacion_tipo ';'
+declaracion_variable  : ids ':' especificacion_tipo op_asignacion expresion ';'                     { reduction("declaracion_variable", "ID : especificacion_tipo ASIGNACION expresion ;"); }
+                      | ids ':' especificacion_tipo ';'                                             { reduction("declaracion_variable", "ID : especificacion_tipo ;"); }
                       ;
 
 /************************** DECLARACIÓN DE TIPOS **************************/
 
-declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado ';'
-                      | TIPO IDENTIFICADOR ES tipo_estructurado
+declaracion_tipo      : TIPO IDENTIFICADOR ES tipo_no_estructurado ';'                              { reduction("declaracion_tipo", "TIPO ID ES tipo_no_estructurado ;"); }
+                      | TIPO IDENTIFICADOR ES tipo_estructurado                                     { reduction("declaracion_tipo", "TIPO ID ES tipo_estructurado"); }
                       ;
 
 /************************ ESPECIFICACIÓN DE TIPOS *************************/
 
-especificacion_tipo   : nombre_libreria | tipo_no_estructurado
+especificacion_tipo   : nombre_libreria                                                             { reduction("especificacion_tipo", "nombre"); }
+                      | tipo_no_estructurado                                                        { reduction("especificacion_tipo", "tipo_no_estructurado"); }
                       ;
-tipo_estructurado     : tipo_registro | tipo_enumerado | clase
+tipo_estructurado     : tipo_registro                                                               { reduction("tipo_estructurado", "tipo_registro"); }
+                      | tipo_enumerado                                                              { reduction("tipo_estructurado", "tipo_enumerado"); }
+                      | clase                                                                       { reduction("tipo_estructurado", "clase"); }
                       ;
-tipo_registro         : REGISTRO campos FIN REGISTRO
+tipo_registro         : REGISTRO campos FIN REGISTRO                                                { reduction("tipo_registro", "REGISTRO campos FIN REGISTRO"); }
                       ;
-tipo_enumerado        : ENUMERACION DE tipo_escalar elementos_enumeracion FIN ENUMERACION  
-                      | ENUMERACION elementos_enumeracion FIN ENUMERACION       
+tipo_enumerado        : ENUMERACION DE tipo_escalar elementos_enumeracion FIN ENUMERACION           { reduction("tipo_enumerado", "ENUMERACION DE tipo_escalar elementos_enumeracion FIN ENUMERACION"); }
+                      | ENUMERACION elementos_enumeracion FIN ENUMERACION                           { reduction("tipo_enumerado", "ENUMERACION elementos_enumeracion FIN ENUMERACION"); }
                       ;
-tipo_no_estructurado  : tipo_escalar
-                      | tipo_tabla
-                      | tipo_diccionario
+tipo_no_estructurado  : tipo_escalar                                                                { reduction("tipo_no_estructurado", "tipo_escalar"); }
+                      | tipo_tabla                                                                  { reduction("tipo_no_estructurado", "tipo_tabla"); }
+                      | tipo_diccionario                                                            { reduction("tipo_no_estructurado", "tipo_diccionario"); }
                       ;
-tipo_escalar          : SIGNO tipo_basico longitud rango
-                      | SIGNO tipo_basico longitud
-                      | SIGNO tipo_basico rango
-                      | SIGNO tipo_basico
-                      | tipo_basico longitud rango
-                      | tipo_basico longitud
-                      | tipo_basico rango
-                      | tipo_basico
+tipo_escalar          : SIGNO tipo_basico longitud rango                                            { reduction("tipo_escalar", "SIGNO tipo_basico longitud rango"); }
+                      | SIGNO tipo_basico longitud                                                  { reduction("tipo_escalar", "SIGNO tipo_basico longitud"); }
+                      | SIGNO tipo_basico rango                                                     { reduction("tipo_escalar", "SIGNO tipo_basico rango"); }
+                      | SIGNO tipo_basico                                                           { reduction("tipo_escalar", "SIGNO tipo_basico"); }
+                      | tipo_basico longitud rango                                                  { reduction("tipo_escalar", "tipo_basico longitud rango"); }
+                      | tipo_basico longitud                                                        { reduction("tipo_escalar", "tipo_basico longitud"); }
+                      | tipo_basico rango                                                           { reduction("tipo_escalar", "tipo_basico rango"); }
+                      | tipo_basico                                                                 { reduction("tipo_escalar", "tipo_basico"); }
                       ;
-tipo_tabla            : TABLA '(' expresion DOS_PUNTOS expresion ')' DE especificacion_tipo
-                      | LISTA DE especificacion_tipo
+tipo_tabla            : TABLA '(' expresion DOS_PUNTOS expresion ')' DE especificacion_tipo         { reduction("tipo_tabla", "TABLA ( expresion .. expresion ) DE especificacion_tipo"); }
+                      | LISTA DE especificacion_tipo                                                { reduction("tipo_tabla", "LISTA DE especificacion_tipo"); }
                       ;
-tipo_diccionario      : DICCIONARIO DE especificacion_tipo
+tipo_diccionario      : DICCIONARIO DE especificacion_tipo                                          { reduction("tipo_diccionario", "DICCIONARIO DE especificacion_tipo"); }
                       ;
-
-tipo_basico           : BOOLEANO
-                      | CARACTER
-                      | ENTERO
-                      | REAL
+tipo_basico           : BOOLEANO                                                                    { reduction("tipo_basico", "BOOLEANO"); }
+                      | CARACTER                                                                    { reduction("tipo_basico", "CARACTER"); }
+                      | ENTERO                                                                      { reduction("tipo_basico", "ENTERO"); }
+                      | REAL                                                                        { reduction("tipo_basico", "REAL"); }
                       ;
-longitud              : CORTO
-                      | LARGO
+longitud              : CORTO                                                                       { reduction("longitud", "CORTO"); }
+                      | LARGO                                                                       { reduction("longitud", "LARGO"); }
                       ;
-rango                 : RANGO expresion DOS_PUNTOS expresion DOS_PUNTOS expresion
-                      | RANGO expresion DOS_PUNTOS expresion
+rango                 : RANGO expresion DOS_PUNTOS expresion DOS_PUNTOS expresion                   { reduction("rango", "RANGO expresion .. expresion .. expresion"); }
+                      | RANGO expresion DOS_PUNTOS expresion                                        { reduction("rango", "RANGO expresion .. expresion"); }
                       ;
 
 /********************************* CLASES *********************************/
 
-clase                 : CLASE ULTIMA superclases decl_componentes FIN CLASE
-                      | CLASE superclases decl_componentes FIN CLASE
+clase                 : CLASE ULTIMA superclases decl_componentes FIN CLASE                         { reduction("clase", "CLASE ULTIMA superclases? decl_componentes FIN CLASE"); }
+                      | CLASE superclases decl_componentes FIN CLASE                                { reduction("clase", "CLASE superclases? decl_componentes FIN CLASE"); }
                       ;
-superclases           : '(' ids ')'
-                      | /* opcional */
+superclases           : '(' ids ')'                                                                 { /* reduction("superclases", "( IDs )"); */ }
+                      | /* opcional */                                                              { /* reduction("superclases", "< vacio >"); */ }
                       ;
-decl_componentes      : decl_componente decl_componentes
-                      | decl_componente
+decl_componentes      : decl_componente decl_componentes                                            { /* reduction("decl_componentes", "decl_componente decl_componentes"); */ }
+                      | decl_componente                                                             { /* reduction("decl_componentes", "decl_componente"); */ }
                       ;
-decl_componente       : visibilidad componente
+decl_componente       : visibilidad componente                                                      { reduction("decl_componente", "visibilidad? componente"); }
                       ;
-componente            : declaracion_tipo
-                      | declaracion_objeto
-                      | modificadores declaracion_sprograma
-                      | declaracion_sprograma
+componente            : declaracion_tipo                                                            { reduction("componente", "declaracion_tipo"); }
+                      | declaracion_objeto                                                          { reduction("componente", "declaracion_objeto"); }
+                      | modificadores declaracion_sprograma                                         { reduction("componente", "modificadores declaracion_subprograma"); }
+                      | declaracion_sprograma                                                       { reduction("componente", "declaracion_subprograma"); }
                       ;
-visibilidad           : PUBLICO | PROTEGIDO | PRIVADO
-                      | /* opcional */
+visibilidad           : PUBLICO                                                                     { reduction("visibilidad", "PUBLICO"); }
+                      | PROTEGIDO                                                                   { reduction("visibilidad", "PROTEGIDO"); }
+                      | PRIVADO                                                                     { reduction("visibilidad", "PRIVADO"); }
+                      | /* opcional */                                                              { /* reduction("visibilidad", "< vacio >"); */ }
                       ;
-modificadores         : modificador modificadores
-                      | modificador
+modificadores         : modificador modificadores                                                   { /* reduction("modificadores", "modificador modificadores"); */ }
+                      | modificador                                                                 { /* reduction("modificadores", "modificador"); */ }
                       ;
-modificador           : CONSTRUCTOR | DESTRUCTOR | GENERICO | ABSTRACTO | ESPECIFICO | FINAL
+modificador           : CONSTRUCTOR                                                                 { reduction("modificador", "CONSTRUCTOR"); }
+                      | DESTRUCTOR                                                                  { reduction("modificador", "DESTRUCTOR"); }
+                      | GENERICO                                                                    { reduction("modificador", "GENERICO"); }
+                      | ABSTRACTO                                                                   { reduction("modificador", "ABSTRACTO"); }
+                      | ESPECIFICO                                                                  { reduction("modificador", "ESPECIFICO"); }
+                      | FINAL                                                                       { reduction("modificador", "FINAL"); }
                       ;
 
 /****************************** SUBPROGRAMAS ******************************/
@@ -214,7 +235,9 @@ instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asi
                       ;
 instr_llamada         : llamada_subprograma ';'
                       ;
-instr_asignacion      : objeto ASIGNACION expresion ';' /* FIXME: Falla con operaciones aritmeticas */
+instr_asignacion      : objeto op_asignacion expresion ';' /* FIXME: Cualquier asignacion */
+                      ;
+op_asignacion         : ASIGNACION | ASIG_SUMA | ASIG_RESTA | ASIG_MULT | ASIG_DIV | ASIG_RESTO | ASIG_POT | ASIG_DESPI | ASIG_DESPD
                       ;
 instr_lanzar          : LANZA nombre_libreria ';'
                       ;
@@ -241,7 +264,7 @@ clausula_iteracion    : PARA IDENTIFICADOR ':' especificacion_tipo EN expresion
                       | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango
                       | REPETIR IDENTIFICADOR EN rango DESCENDENTE
                       | REPETIR IDENTIFICADOR EN rango
-                      | MIENTRAS expresion
+                      | MIENTRAS expresion  
                       ;
 
 /******************************** PRUEBAS *********************************/
@@ -273,86 +296,70 @@ expresion_condicional : SI expresion ENTONCES expresion SINO expresion
                       ;
 
 /* TODO: Refractor */
-                      
-expresion
-		: and_logico
-		| expresion OR and_logico		 { printf ("  or_logico ->  or_logico '\\/' and_logico\n"); }
-		;
 
-and_logico
-		: negacion
-		| and_logico AND negacion		 { printf ("  and_logico ->  and_logico '/\\' negacion\n"); }
-		;
-
-negacion
-		: comparacion
-		| '~' comparacion { printf ("  negacion -> '~' comparacion\n"); }
-		;
-
-comparacion
-		: desplazamiento
-		| desplazamiento '>' desplazamiento { printf ("  comparacion ->  desplazamiento '>' desplazamiento\n"); }
-		| desplazamiento '<' desplazamiento { printf ("  comparacion ->  desplazamiento '<' desplazamiento\n"); }
-		| desplazamiento '=' desplazamiento { printf ("  comparacion ->  desplazamiento '=' desplazamiento\n"); }
-		| desplazamiento LEQ desplazamiento { printf ("  comparacion ->  desplazamiento '<=' desplazamiento\n"); }
-		| desplazamiento GEQ desplazamiento { printf ("  comparacion ->  desplazamiento '>=' desplazamiento\n"); }
-		| desplazamiento NEQ desplazamiento { printf ("  comparacion ->  desplazamiento '<>' desplazamiento\n"); }
-		;
-
-desplazamiento
-		:	suma_resta
-		| desplazamiento DESPD suma_resta { printf ("  desplazamiento ->  desplazamiento '->' suma_resta\n"); }
-		| desplazamiento DESPI suma_resta { printf ("  desplazamiento ->  desplazamiento '<-' suma_resta\n"); }
-		;
-
-suma_resta
-		: multi_div 
-		| suma_resta '-' multi_div { printf ("  suma_resta ->  suma_resta '-' multi_div\n"); }
-		| suma_resta '+' multi_div { printf ("  suma_resta ->  suma_resta '+' multi_div\n"); }
-		;
-
-multi_div
-		: potencia
-		| multi_div '*' potencia { printf ("  multi_div ->  multi_div '*' potencia\n"); }
-		| multi_div '/' potencia { printf ("  multi_div ->  multi_div '/' potencia\n"); } 
-		| multi_div RESTO potencia { printf ("  multi_div ->  multi_div '\\' potencia\n"); } 
-		;
-
-potencia
-		: expresion_posfija
-		| expresion_posfija POT potencia { printf ("  potencia ->  expr_posfija '**' potencia\n"); }
-		;
-
-expresion_posfija 
-		: expresion_unaria
-		| expresion_unaria operador_posfijo	{ printf ("  expresion posfija -> expr_unaria op_posfijo\n"); }
-		;
-
-operador_posfijo 
-		: INC		{ printf ("  operador posfijo -> '++'\n"); } 
-		| DEC		{ printf ("  operador posfijo -> '--'\n"); }
-		;
-
-expresion_unaria 		
-		: primario			{ printf ("  expresion unaria -> primario\n"); }
-		| '-' primario	{ printf ("  expresion unaria -> '-' primario\n"); }
-		;
+expresion             : and_logico
+		              | expresion OR and_logico		 
+		              ;
+and_logico            : negacion
+		              | and_logico AND negacion		 
+		              ;
+negacion              : comparacion
+		              | '~' comparacion 
+		              ;
+comparacion           : desplazamiento
+		              | desplazamiento '>' desplazamiento 
+		              | desplazamiento '<' desplazamiento 
+		              | desplazamiento '=' desplazamiento 
+		              | desplazamiento LEQ desplazamiento 
+		              | desplazamiento GEQ desplazamiento 
+		              | desplazamiento NEQ desplazamiento 
+		              ;
+desplazamiento        :	suma_resta
+		              | desplazamiento DESPD suma_resta 
+		              | desplazamiento DESPI suma_resta 
+		              ;
+suma_resta            : multi_div 
+		              | suma_resta '-' multi_div 
+		              | suma_resta '+' multi_div 
+		              ;
+multi_div             : potencia
+		              | multi_div '*' potencia 
+		              | multi_div '/' potencia  
+		              | multi_div RESTO potencia  
+		              ;
+potencia              : expresion_posfija
+		              | expresion_posfija POT potencia 
+		              ;
+expresion_posfija     : expresion_unaria
+		              | expresion_unaria operador_posfijo	
+		              ;
+operador_posfijo      : INC		 
+		              | DEC		
+		              ;
+expresion_unaria      : primario			
+		              | '-' primario %prec UMINUS	
+		              ;
 
 /******************************* PRIMARIOS ********************************/
 
 primario              : '(' expresion ')'
+                   /* | objeto  FIXME: 1s/r conflict */ 
+                      | objeto
                       | objeto llamada_subprograma
                       | llamada_subprograma
-                      | objeto
                       | enumeracion
                       | literal
                       ;
 objeto                : objeto '.' nombre_libreria
                       | objeto '[' expresiones ']'
+                      | objeto '{' cadenas '}'
                       | nombre_libreria
                       ;
 ids                   : IDENTIFICADOR ',' ids
                       | IDENTIFICADOR
+                      ;
+cadenas               : CTC_CADENA ',' cadenas
+                      | CTC_CADENA
                       ;
 literal               : VERDADERO
                       | FALSO
@@ -389,19 +396,21 @@ campo_valor           : IDENTIFICADOR FLECHA expresion
 
 %%
 
-int yyerror (char *msg) {
+void reduction(char * a, char * b) {
   fflush(stdout);
-  printf("***************** Error en la línea %d cerca de '%s': %s\n", yylineno, yytext, msg);
+  fprintf(stdout, "\t%s -> %s\n", a, b);
 }
 
-int yywrap() { return(1); }
+int yyerror (char *msg) {
+  fflush(stderr);
+  fprintf(stderr, "***************** Error en la línea %d cerca de '%s': %s\n", yylineno, yytext, msg);
+}
+
+int yywrap() {
+    return 1;
+}
 
 int main(int argc, char *argv[]) {
-
-  /* Debug options */
-  yydebug = 0;        // Bison
-  enabledlogging = 1; // Mensajes del lexer
-
   /* Argument validator */
   if (argc < 2) {
     fprintf(stderr, "Uso: ./simple <archivo>\n");
