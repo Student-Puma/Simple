@@ -40,6 +40,8 @@
 %token IDENTIFICADOR
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
 
+%left SUMA RESTA MULT DIV
+
 %%
 
 /******************************** PROGRAMA ********************************/
@@ -65,7 +67,6 @@ declaracionesop       : declaraciones
 declaracion           : declaracion_objeto | declaracion_tipo | declaracion_sprograma
                       ;
 
-/************************** IMPORTAR / EXPORTAR ***************************/
 
 imexportar            : importar exportar
                       | importar
@@ -210,11 +211,11 @@ llamada_subprograma   : nombre_libreria PARENT_A definicion_parametros PARENT_C
 instrucciones         : instruccion instrucciones
                       | instruccion
                       ;
-instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion | instr_lanzar | instr_devolver | instr_vacia
+instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion | instr_lanzar | instr_devolver | instr_vacia | instr_si
                       ;
 instr_llamada         : llamada_subprograma PUNTO_COMA
                       ;
-instr_asignacion      : nombre_libreria op_asignacion expresion PUNTO_COMA /* FIXME: objeto */
+instr_asignacion      : objeto op_asignacion expresion PUNTO_COMA
                       ;
 instr_lanzar          : LANZA nombre_libreria PUNTO_COMA
                       ;
@@ -226,14 +227,18 @@ instr_vacia           : PUNTO_COMA
 
 /************************* BUCLES Y CONDICIONALES *************************/
 
+instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI
+                      | SI expresion ENTONCES instrucciones FIN SI
+                      ;
 instr_bucle           : IDENTIFICADOR DOS_PUNTOS_V clausula_iteracion instrucciones FIN BUCLE
                       | clausula_iteracion instrucciones FIN BUCLE
                       ;
 clausula_iteracion    : PARA IDENTIFICADOR especificacion_tipo EN expresion
                       | PARA IDENTIFICADOR EN expresion
-                      | REPETIR IDENTIFICADOR especificacion_tipo /* especificacion_tipo es opcional */
-                      | EN rango DESCENDENTE
-                      | EN rango
+                      | REPETIR IDENTIFICADOR especificacion_tipo EN rango DESCENDENTE /* especificacion_tipo es opcional */
+                      | REPETIR IDENTIFICADOR especificacion_tipo EN rango /* especificacion_tipo es opcional */
+                      | REPETIR IDENTIFICADOR EN rango DESCENDENTE /* especificacion_tipo es opcional */
+                      | REPETIR IDENTIFICADOR EN rango /* especificacion_tipo es opcional */
                       | MIENTRAS expresion
                       ;
 
@@ -261,7 +266,7 @@ clausula_finalmente   : FINALMENTE instrucciones
 expresiones           : expresion COMA expresiones
                       | expresion
                       ;
-expresion             : expresion_booleana
+expresion             : expresion_booleana      /* FIXME: Todos los shift/reduce en las expresiones */
                       | expresion_matematica
                       | expresion_unitaria
                       ;
@@ -272,9 +277,9 @@ expresion_matematica  : expresion op_matematico expresion
                       ;
 expresion_booleana    : expresion op_booleano expresion
                       ;
-op_matematico         : MULT | DIV | POT
+op_matematico         : SUMA | RESTA | MULT | DIV | POT | RESTO
                       ;
-op_booleano           : MENOR
+op_booleano           : EQ | MAYOR | MENOR | LEQ | GEQ | AND | OR
                       | NEG expresion
                       ;
 op_asignacion         : ASIGNACION | ASIG_SUMA
@@ -290,6 +295,7 @@ primario              : PARENT_A expresion PARENT_C
                       | literal
                       ;
 objeto                : objeto PUNTO nombre_libreria
+                      | objeto CORCHETE_A expresiones CORCHETE_C
                       | nombre_libreria
                       ;
 ids                   : IDENTIFICADOR COMA ids

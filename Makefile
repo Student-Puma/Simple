@@ -1,18 +1,17 @@
-.PHONY: all, bison, build, clean, lex, simple
+.PHONY: all, build, clean, test
 
 all: build
 build: simple
-simple: bison
 
-bison: simple.tab.c simple.lex.c
+simple: simple.tab.c simple.lex.c
 	gcc -o simple -lm $^
-lex: simple.lex.c
-	gcc -o simple $<
-
 simple.tab.c:	simple.y
 	bison -dv simple.y
 simple.lex.c: simple.l
 	flex -o $@ $<
+
+test:
+	./simple examples/ordenar.sim
 
 clean:
 	@rm simple simple.lex.c simple.tab.c simple.tab.h simple.output

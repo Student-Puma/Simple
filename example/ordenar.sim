@@ -27,10 +27,12 @@ subprograma ordenarQuicksort
     mientras izdo<=dcho
       mientras datos[izdo]<pivote /\ izdo<limDcho
         izdo := izdo+1;
+        ;
       fin bucle
 
       mientras pivote<datos[dcho] /\ dcho > limIzdo
         dcho := dcho-1;
+        ;
       fin bucle
 
       si (izdo<=dcho) entonces

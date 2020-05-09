@@ -1,59 +1,6 @@
-libreria test;
-  de libreria a importar a;
-  importar libreria a;
-  importar libreria c como b;
+programa test;
 
-  exportar a,b,c;
+principio
+datos : tabla(1..n) de entero;
 
-  tipo pruebas es entero;
-
-  a : constante entero := 10;
-  b : booleano := verdadero;
-  c : real;
-
-  d : lista de booleano;
-  e : tabla(1..10) de reales;
-
-  f : diccionario de booleano;
-  
-  tipo mapa es registro
-    a : entero;
-    b : real := 4;
-  fin registro
-
-  g : mapa;
-
-  tipo h es booleano corto rango 1 .. 10;
-
-  tipo i es enumeracion de signo entero largo rango 1 .. 20
-    A := 1
-    B
-    C := 4
-  fin enumeracion
-
-  tipo j es enumeracion
-    A
-    B := 3
-    C
-  fin enumeracion
-
-  tipo k es clase ultima (l, m)
-    privado a : real := 10.5;
-    protegido b : mapa;
-    publico c : codigo;
-    d : dedos := 10;
-
-    subprograma test
-    principio
-    fin subprograma
-  fin clase
-
-  subprograma l devolver entero
-  principio
-  fin subprograma
-
-  subprograma m (a,b : booleano := verdadero ; c : booleano) devolver booleano
-    izdo : entero := limIzdo;
-  principio
-  fin subprograma
 fin

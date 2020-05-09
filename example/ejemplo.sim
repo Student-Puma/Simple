@@ -2,6 +2,7 @@ progrAma ejemplo;
 
 importar libreria principal::sistema_operativo::entrada_salida como E_S;
 
+
 valores : lista de entero := [ 88, 56, 100, 2, 25 ];
 indice : entero := 0;
 
