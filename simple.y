@@ -387,7 +387,7 @@ literal               : VERDADERO                                               
                       | CTC_ENTERA                                                                  { reduction("literal", "CTC_ENTERA"); }
                       | CTC_REAL                                                                    { reduction("literal", "CTC_REAL"); }
                       ;
-campos                : declaracion_variable ',' campos                                             { /* reduction("campos", "declaracion_variable , campos"); */ }
+campos                : declaracion_variable ';' campos                                             { /* reduction("campos", "declaracion_variable ; campos"); */ }
                       | declaracion_variable                                                        { /* reduction("campos", "declaracion_variable"); */ }
                       ;
 
