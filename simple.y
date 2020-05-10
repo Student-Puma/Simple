@@ -274,10 +274,16 @@ clausulas_iteracion   : clausula_iteracion clausulas_iteracion                  
                       ;
 clausula_iteracion    : PARA IDENTIFICADOR ':' especificacion_tipo EN expresion                     { reduction("clausula_iteracion", "PARA ID : especificacion_tipo EN expresion"); }
                       | PARA IDENTIFICADOR EN expresion                                             { reduction("clausula_iteracion", "PARA ID EN expresion"); }
-                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango DESCENDENTE          { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango DESCENDENTE"); }
-                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango                      { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango"); }
-                      | REPETIR IDENTIFICADOR EN rango DESCENDENTE                                  { reduction("clausula_iteracion", "REPETIR ID EN rango DESCENDENTE"); }
-                      | REPETIR IDENTIFICADOR EN rango                                              { reduction("clausula_iteracion", "REPETIR ID EN rango"); }
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN expresion DOS_PUNTOS expresion DOS_PUNTOS expresion DESCENDENTE
+                                                                                                    { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango DESCENDENTE"); }
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN expresion DOS_PUNTOS expresion DOS_PUNTOS expresion
+                                                                                                    { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango"); }
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN expresion DOS_PUNTOS expresion DESCENDENTE
+                                                                                                    { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango DESCENDENTE"); }
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN expresion DOS_PUNTOS expresion
+                                                                                                    { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango"); }
+                      | REPETIR IDENTIFICADOR EN expresion DOS_PUNTOS expresion DESCENDENTE         { reduction("clausula_iteracion", "REPETIR ID EN rango DESCENDENTE"); }
+                      | REPETIR IDENTIFICADOR EN expresion DOS_PUNTOS expresion                     { reduction("clausula_iteracion", "REPETIR ID EN rango"); }
                       | MIENTRAS expresion                                                          { reduction("clausula_iteracion", "MIENTRAS expresion"); }
                       ;
 

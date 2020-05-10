@@ -120,10 +120,10 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("VERDADERO"))       return VERDADERO;
                                     }
 \'{character}\'                     { logging("caracter");      return CTC_CARACTER; }
-{comment}|[\r\n\t\b ]               ;
-{commentbgn}                        BEGIN(commentml);
-<commentml>.|\n                     ;
-<commentml>{commentend}             BEGIN(INITIAL);
+{comment}|[\r\n\t\b ]               { ; }
+{commentbgn}                        { BEGIN(commentml); }
+<commentml>.|\n                     { ; }
+<commentml>{commentend}             { BEGIN(INITIAL); }
 {identifier}                        { logging("identificador"); return IDENTIFICADOR; }
 {b8}+|{digit}+|{b16}+               { logging("ctc entera");    return CTC_ENTERA; }
 {octal}|{decimal}|{hexadecimal}     { logging("ctc real");      return CTC_REAL; }
