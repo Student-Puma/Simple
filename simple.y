@@ -195,203 +195,210 @@ modificador           : CONSTRUCTOR                                             
 
 /****************************** SUBPROGRAMAS ******************************/
 
-declaracion_sprograma : SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBPROGRAMA
+declaracion_sprograma : SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBPROGRAMA             { reduction("declaracion_subprograma", "SUBPROGRAMA cabecera_subprograma cuerpo_subprograma SUBPROGRAMA"); }
                       ;
-cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado
-                      | IDENTIFICADOR parametrizacion
+cabecera_subprograma  : IDENTIFICADOR parametrizacion tipo_resultado                                { reduction("cabecera_subprograma", "ID paramtros? tipo_resultado"); }
+                      | IDENTIFICADOR parametrizacion                                               { reduction("cabecera_subprograma", "ID paramtros?"); }
                       ;
-cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN
+cuerpo_subprograma    : declaracionesop PRINCIPIO instrucciones FIN                                 { reduction("cuerpo_subprograma", "declaraciones? PRINCIPIO instrucciones FIN"); }
                       ;
-parametrizacion       : '(' declaracion_parametrs ')'
-                      | /* opcional */
+parametrizacion       : '(' declaracion_parametrs ')'                                               { /* reduction("parametrizacion", "( declaracion_parametrs )"); */ }
+                      | /* opcional */                                                              { /* reduction("parametrizacion", "< vacio >"); */ }
                       ;
-definicion_parametros : definicion_parametro ',' definicion_parametros
-                      | definicion_parametro
+definicion_parametros : definicion_parametro ',' definicion_parametros                              { /* reduction("definicion_parametros", "definicion_parametro , definicion_parametros"); */ }
+                      | definicion_parametro                                                        { /* reduction("definicion_parametros", "definicion_parametros"); */ }
                       ;
-definicion_parametro  : IDENTIFICADOR ASIGNACION expresion
-                      | expresion
+definicion_parametro  : IDENTIFICADOR ASIGNACION expresion                                          { reduction("definicion_parametro", "ID ASIGNACION expresion"); }
+                      | expresion                                                                   { reduction("definicion_parametro", "expresion"); }
                       ;
-declaracion_parametrs : paramtros ';' declaracion_parametrs
-                      | paramtros
+declaracion_parametrs : paramtros ';' declaracion_parametrs                                         { /* reduction("declaracion_parametrs", "paramtros ; declaracion_parametrs"); */ }
+                      | paramtros                                                                   { /* reduction("declaracion_parametrs", "paramtros"); */ }
                       ;
-paramtros             : ids ':' modo especificacion_tipo ASIGNACION expresion
-                      | ids ':' modo especificacion_tipo
+paramtros             : ids ':' modo especificacion_tipo ASIGNACION expresion                       { reduction("paramtros", "ID : modo? especificacion_tipo ASIGNACION expresion"); }
+                      | ids ':' modo especificacion_tipo                                            { reduction("paramtros", "ID : modo? especificacion_tipo"); }
                       ;
-modo                  : VALOR | REFERENCIA
-                      | /* opcional */
+modo                  : VALOR                                                                       { reduction("modo", "VALOR"); }
+                      | REFERENCIA                                                                  { reduction("modo", "REFERENCIA"); }
+                      | /* opcional */                                                              { /* reduction("modo", "< vacio >"); */ }
                       ;
-tipo_resultado        : DEVOLVER especificacion_tipo
+tipo_resultado        : DEVOLVER especificacion_tipo                                                { reduction("tipo_resultado", "DEVOLVER especificacion_tipo"); }
                       ;
-llamada_subprograma   : nombre_libreria '(' definicion_parametros ')'
-                      | nombre_libreria '(' ')'
+llamada_subprograma   : nombre_libreria '(' definicion_parametros ')'                               { reduction("llamada_subprograma", "nombre ( definicion_parametros )"); }
+                      | nombre_libreria '(' ')'                                                     { reduction("llamada_subprograma", "nombre ( )"); }
                       ;
 
 /***************************** INSTRUCCIONES ******************************/
 
-instrucciones         : instruccion instrucciones
-                      | instruccion
+instrucciones         : instruccion instrucciones                                                   { reduction("instrucciones", "instruccion instrucciones"); }
+                      | instruccion                                                                 { reduction("instrucciones", "instruccion"); }
                       ;
-instruccion           : instr_llamada | instr_bucle | instr_capturar | instr_asignacion | instr_lanzar | instr_devolver | instr_vacia | instr_si
+instruccion           : instr_llamada                                                               { reduction("instruccion", "instr_llamada"); }
+                      | instr_bucle                                                                 { reduction("instruccion", "instr_bucle"); }
+                      | instr_capturar                                                              { reduction("instruccion", "instr_capturar"); }
+                      | instr_asignacion                                                            { reduction("instruccion", "instr_asignacion"); }
+                      | instr_lanzar                                                                { reduction("instruccion", "instr_lanzar"); }
+                      | instr_devolver                                                              { reduction("instruccion", "instr_devolver"); }
+                      | instr_vacia                                                                 { reduction("instruccion", "instr_vacia"); }
+                      | instr_si                                                                    { reduction("instruccion", "instr_si"); }
                       ;
-instr_llamada         : llamada_subprograma ';'
+instr_llamada         : llamada_subprograma ';'                                                     { reduction("instr_llamada", "llamada_subprograma ;"); }
                       ;
-instr_asignacion      : objeto op_asignacion expresion ';' /* FIXME: Cualquier asignacion */
+instr_asignacion      : objeto op_asignacion expresion ';'                                          { reduction("instr_asignacion", "objeto ASIGNACION expresion ;"); }
                       ;
-op_asignacion         : ASIGNACION | ASIG_SUMA | ASIG_RESTA | ASIG_MULT | ASIG_DIV | ASIG_RESTO | ASIG_POT | ASIG_DESPI | ASIG_DESPD
+op_asignacion         : ASIGNACION
+                      | ASIG_SUMA | ASIG_RESTA | ASIG_MULT | ASIG_DIV
+                      | ASIG_RESTO | ASIG_POT | ASIG_DESPI | ASIG_DESPD
                       ;
-instr_lanzar          : LANZA nombre_libreria ';'
+instr_lanzar          : LANZA nombre_libreria ';'                                                   { reduction("instr_lanzar", "LANZA nombre ;"); }
                       ;
-instr_devolver        : DEVOLVER expresion ';'
-                      | DEVOLVER ';'
+instr_devolver        : DEVOLVER expresion ';'                                                      { reduction("instr_devolver", "DEVOLVER expresion ;"); }
+                      | DEVOLVER ';'                                                                { reduction("instr_devolver", "DEVOLVER ;"); }
                       ;
-instr_vacia           : ';'
+instr_vacia           : ';'                                                                         { reduction("instr_vacia", ";"); }
                       ;
 
 /************************* BUCLES Y CONDICIONALES *************************/
 
-instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI
-                      | SI expresion ENTONCES instrucciones FIN SI
+instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI               { reduction("instr_si", "SI expresion ENTONCES instrucciones SINO instrucciones FIN SI"); }
+                      | SI expresion ENTONCES instrucciones FIN SI                                  { reduction("instr_si", "SI expresion ENTONCES instruccionesFIN SI"); }
                       ;
-instr_bucle           : IDENTIFICADOR ':' clausula_iteracion instrucciones FIN BUCLE
-                      | clausula_iteracion instrucciones FIN BUCLE
+instr_bucle           : IDENTIFICADOR ':' clausula_iteracion instrucciones FIN BUCLE                { reduction("instr_bucle", "ID ':' clausula_iteracion instrucciones FIN BUCLE"); }
+                      | clausula_iteracion instrucciones FIN BUCLE                                  { reduction("instr_bucle", "clausula_iteracion instrucciones FIN BUCLE"); }
                       ;
-clausulas_iteracion   : clausula_iteracion clausulas_iteracion
-                      | clausula_iteracion
+clausulas_iteracion   : clausula_iteracion clausulas_iteracion                                      { /* reduction("clausulas_iteracion", "clausula_iteracion clausulas_iteracion"); */ }
+                      | clausula_iteracion                                                          { /* reduction("clausulas_iteracion", "clausula_iteracion"); */ }
                       ;
-clausula_iteracion    : PARA IDENTIFICADOR ':' especificacion_tipo EN expresion
-                      | PARA IDENTIFICADOR EN expresion
-                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango DESCENDENTE
-                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango
-                      | REPETIR IDENTIFICADOR EN rango DESCENDENTE
-                      | REPETIR IDENTIFICADOR EN rango
-                      | MIENTRAS expresion  
+clausula_iteracion    : PARA IDENTIFICADOR ':' especificacion_tipo EN expresion                     { reduction("clausula_iteracion", "PARA ID : especificacion_tipo EN expresion"); }
+                      | PARA IDENTIFICADOR EN expresion                                             { reduction("clausula_iteracion", "PARA ID EN expresion"); }
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango DESCENDENTE          { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango DESCENDENTE"); }
+                      | REPETIR IDENTIFICADOR ':' especificacion_tipo EN rango                      { reduction("clausula_iteracion", "REPETIR ID : especificacion_tipo EN rango"); }
+                      | REPETIR IDENTIFICADOR EN rango DESCENDENTE                                  { reduction("clausula_iteracion", "REPETIR ID EN rango DESCENDENTE"); }
+                      | REPETIR IDENTIFICADOR EN rango                                              { reduction("clausula_iteracion", "REPETIR ID EN rango"); }
+                      | MIENTRAS expresion                                                          { reduction("clausula_iteracion", "MIENTRAS expresion"); }
                       ;
 
 /******************************** PRUEBAS *********************************/
 
-instr_capturar        : PRUEBA instrucciones clausulas FIN PRUEBA
+instr_capturar        : PRUEBA instrucciones clausulas FIN PRUEBA                                   { reduction("instr_capturar", "PRUEBA instrucciones clausulas FIN PRUEBA"); }
                       ;
-clausulas             : clausulas_excepcion clausula_finalmente
-                      | clausulas_excepcion
-                      | clausula_finalmente
+clausulas             : clausulas_excepcion clausula_finalmente                                     { reduction("clausulas", "clausulas_excepcion clausula_finalmente"); }
+                      | clausulas_excepcion                                                         { reduction("clausulas", "clausulas_excepcion"); }
+                      | clausula_finalmente                                                         { reduction("clausulas", "clausula_finalmente"); }
                       ;
-clausulas_excepcion   : clausulas_especificas
+clausulas_excepcion   : clausulas_especificas                                                       { /* reduction("clausulas_excepcion", "clausulas_especificas"); */ }
                       ;
-clausulas_especificas : clausula_excepcion clausulas_especificas
-                      | clausula_excepcion
+clausulas_especificas : clausula_excepcion clausulas_especificas                                    { /* reduction("clausulas_especificas", "clausula_excepcion clausulas_especificas"); */ }
+                      | clausula_excepcion                                                          { /* reduction("clausulas_especificas", "clausula_excepcion"); */ }
                       ;
-clausula_excepcion    : EXCEPCION '(' nombre_libreria ')' instrucciones
-                      | EXCEPCION instrucciones /* FIXME: Exc General aparte */
+clausula_excepcion    : EXCEPCION '(' nombre_libreria ')' instrucciones                             { reduction("clausula_excepcion", "EXCEPCION ( nombre ) instrucciones"); }
+                      | EXCEPCION instrucciones                                                     { reduction("clausula_excepcion", "EXCEPCION instrucciones"); } /* FIXME: Exc. General aparte */               
                       ;
-clausula_finalmente   : FINALMENTE instrucciones
+clausula_finalmente   : FINALMENTE instrucciones                                                    { reduction("clausula_finalmente", "FINALMENTE instrucciones"); }
                       ;
 
 /****************************** EXPRESIONES *******************************/
 
-expresiones           : expresion ',' expresiones
-                      | expresion
+expresiones           : expresion ',' expresiones                                                   { /* reduction("expresiones", "expresion , expresiones"); */ }
+                      | expresion                                                                   { /* reduction("expresiones", "expresiones"); */ }
                       ;
-expresion_condicional : SI expresion ENTONCES expresion SINO expresion
-                      | SI expresion ENTONCES expresion
+expresion_condicional : SI expresion ENTONCES expresion SINO expresion                              { reduction("expresion_condicional", "SI expresion ENTONCES expresion SINO expresion"); }
+                      | SI expresion ENTONCES expresion                                             { reduction("expresion_condicional", "SI expresion ENTONCES expresion"); }
                       ;
 
-/* TODO: Refractor */
+/* Resolución de conflictos de shift/reduce y reduce/reduce */
 
-expresion             : and_logico
-		              | expresion OR and_logico		 
+expresion             : and_logico                                                                  { ; }
+		              | expresion OR and_logico		                                                { reduction("expresion", "expresion \\/ expresion"); }
 		              ;
-and_logico            : negacion
-		              | and_logico AND negacion		 
+and_logico            : negacion                                                                    { ; }
+		              | and_logico AND negacion		                                                { reduction("expresion", "expresion /\\ expresion"); }
 		              ;
-negacion              : comparacion
-		              | '~' comparacion 
+negacion              : comparacion                                                                 { ; }
+		              | '~' comparacion                                                             { reduction("expresion", "~ expresion"); }
 		              ;
-comparacion           : desplazamiento
-		              | desplazamiento '>' desplazamiento 
-		              | desplazamiento '<' desplazamiento 
-		              | desplazamiento '=' desplazamiento 
-		              | desplazamiento LEQ desplazamiento 
-		              | desplazamiento GEQ desplazamiento 
-		              | desplazamiento NEQ desplazamiento 
+comparacion           : desplazamiento                                                              { ; }
+		              | desplazamiento '>' desplazamiento                                           { reduction("expresion", "expresion > expresion"); }
+		              | desplazamiento '<' desplazamiento                                           { reduction("expresion", "expresion < expresion"); }
+		              | desplazamiento '=' desplazamiento                                           { reduction("expresion", "expresion = expresion"); }
+		              | desplazamiento LEQ desplazamiento                                           { reduction("expresion", "expresion <= expresion"); }
+		              | desplazamiento GEQ desplazamiento                                           { reduction("expresion", "expresion >= expresion"); }
+		              | desplazamiento NEQ desplazamiento                                           { reduction("expresion", "expresion ~= expresion"); }
 		              ;
-desplazamiento        :	suma_resta
-		              | desplazamiento DESPD suma_resta 
-		              | desplazamiento DESPI suma_resta 
+desplazamiento        :	suma_resta                                                                  { ; }
+		              | desplazamiento DESPD suma_resta                                             { reduction("expresion", "expresion -> expresion"); }
+		              | desplazamiento DESPI suma_resta                                             { reduction("expresion", "expresion <- expresion"); }
 		              ;
-suma_resta            : multi_div 
-		              | suma_resta '-' multi_div 
-		              | suma_resta '+' multi_div 
+suma_resta            : multi_div                                                                   { ; }
+		              | suma_resta '-' multi_div                                                    { reduction("expresion", "expresion - expresion"); }
+		              | suma_resta '+' multi_div                                                    { reduction("expresion", "expresion + expresion"); }
 		              ;
-multi_div             : potencia
-		              | multi_div '*' potencia 
-		              | multi_div '/' potencia  
-		              | multi_div RESTO potencia  
+multi_div             : potencia                                                                    { ; }
+		              | multi_div '*' potencia                                                      { reduction("expresion", "expresion * expresion"); }
+		              | multi_div '/' potencia                                                      { reduction("expresion", "expresion / expresion"); }
+		              | multi_div RESTO potencia                                                    { reduction("expresion", "expresion \\ expresion"); }
 		              ;
-potencia              : expresion_posfija
-		              | expresion_posfija POT potencia 
+potencia              : expresion_posfija                                                           { ; }
+		              | expresion_posfija POT potencia                                              { reduction("expresion", "expresion ^ expresion"); }
 		              ;
-expresion_posfija     : expresion_unaria
-		              | expresion_unaria operador_posfijo	
+expresion_posfija     : expresion_unaria                                                            { ; }
+		              | expresion_unaria INC                                                        { reduction("expresion", "expresion ++"); }
+                      | expresion_unaria DEC                                                        { reduction("expresion", "expresion --"); }
 		              ;
-operador_posfijo      : INC		 
-		              | DEC		
-		              ;
-expresion_unaria      : primario			
-		              | '-' primario %prec UMINUS	
+expresion_unaria      : primario	                                                                { reduction("expresion", "primario"); }		
+		              | '-' primario %prec UMINUS	                                                { reduction("expresion", "- primario"); }
 		              ;
 
 /******************************* PRIMARIOS ********************************/
 
-primario              : '(' expresion ')'
-                   /* | objeto  FIXME: 1s/r conflict */ 
-                      | objeto
-                      | objeto llamada_subprograma
-                      | llamada_subprograma
-                      | enumeracion
-                      | literal
+primario              : '(' expresion ')'                                                           { reduction("primario", "( expresion )"); }
+                      | objeto llamada_subprograma                                                  { reduction("primario", "objeto llamada_subprograma"); }
+                      | llamada_subprograma                                                         { reduction("primario", "llamada_subprograma"); }
+                      | enumeracion                                                                 { reduction("primario", "enumeracion"); }
+                      | literal                                                                     { reduction("primario", "literal"); }
+                      | objeto                                                                      { reduction("primario", "objeto"); } /* FIXME: Exc. General aparte */   
                       ;
-objeto                : objeto '.' nombre_libreria
-                      | objeto '[' expresiones ']'
-                      | objeto '{' cadenas '}'
-                      | nombre_libreria
+objeto                : objeto '.' nombre_libreria                                                  { reduction("objeto", "objeto . nombre"); }
+                      | objeto '[' expresiones ']'                                                  { reduction("objeto", "objeto [ expresiones ]"); }
+                      | objeto '{' cadenas '}'                                                      { reduction("objeto", "objeto { CTC_CADENA }"); }
+                      | nombre_libreria                                                             { reduction("objeto", "nombre"); }
                       ;
-ids                   : IDENTIFICADOR ',' ids
-                      | IDENTIFICADOR
+ids                   : IDENTIFICADOR ',' ids                                                       { /* reduction("ids", "ID , ids"); */ }
+                      | IDENTIFICADOR                                                               { /* reduction("ids", "ID"); */ }
                       ;
-cadenas               : CTC_CADENA ',' cadenas
-                      | CTC_CADENA
+cadenas               : CTC_CADENA ',' cadenas                                                      { /* reduction("cadenas", "CTC_CADENA , cadenas"); */ }
+                      | CTC_CADENA                                                                  { /* reduction("cadenas", "CTC_CADENA"); */ }
                       ;
-literal               : VERDADERO
-                      | FALSO
-                      | CTC_CADENA
-                      | CTC_CARACTER
-                      | CTC_ENTERA
-                      | CTC_REAL
+literal               : VERDADERO                                                                   { reduction("literal", "VERDADERO"); }
+                      | FALSO                                                                       { reduction("literal", "FALSO"); }
+                      | CTC_CADENA                                                                  { reduction("literal", "CTC_CADENA"); }
+                      | CTC_CARACTER                                                                { reduction("literal", "CTC_CARACTER"); }
+                      | CTC_ENTERA                                                                  { reduction("literal", "CTC_ENTERA"); }
+                      | CTC_REAL                                                                    { reduction("literal", "CTC_REAL"); }
                       ;
-campos                : declaracion_variable campos
-                      | declaracion_variable
+campos                : declaracion_variable ',' campos                                             { /* reduction("campos", "declaracion_variable , campos"); */ }
+                      | declaracion_variable                                                        { /* reduction("campos", "declaracion_variable"); */ }
                       ;
 
-enumeracion           : '[' expresion_condicional clausulas_iteracion ']'
-                      | '[' expresiones ']'
-                      | '{' campos_enum '}'
-                      | '{' claves_enum '}'
+enumeracion           : '[' expresion_condicional clausulas_iteracion ']'                           { reduction("enumeracion", "[ expresion_condicional clausulas_iteracion ]"); }
+                      | '[' expresiones ']'                                                         { reduction("enumeracion", "[ expresiones ]"); }
+                      | '{' campos_enum '}'                                                         { reduction("enumeracion", "{ campos }"); }
+                      | '{' claves_enum '}'                                                         { reduction("enumeracion", "{ claves }"); }
                       ;
-elementos_enumeracion : elemento_enumeracion ',' elementos_enumeracion
-                      | elemento_enumeracion
+elementos_enumeracion : elemento_enumeracion ',' elementos_enumeracion                              { /* reduction("elementos_enumeracion", "elemento_enumeracion , elementos_enumeracion"); */ }
+                      | elemento_enumeracion                                                        { /* reduction("elementos_enumeracion", "elemento_enumeracion"); */ }
                       ;
-elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion
-                      | IDENTIFICADOR
+elemento_enumeracion  : IDENTIFICADOR ASIGNACION expresion                                          { reduction("elemento_enumeracion", "ID ASIGNACION expresion"); }
+                      | IDENTIFICADOR                                                               { reduction("elemento_enumeracion", "ID"); }
                       ;
-campos_enum           : campo_valor ',' campos_enum
-                      | campo_valor
+campos_enum           : campo_valor ',' campos_enum                                                 { /* reduction("campos_enum", "campo_valor , campos_enum"); */ }
+                      | campo_valor                                                                 { /* reduction("campos_enum", "campo_valor"); */ }
                       ;
-claves_enum           : clave_valor ',' claves_enum
-                      | clave_valor
+claves_enum           : clave_valor ',' claves_enum                                                 { /* reduction("claves_enum", "clave_valor , claves_enum"); */ }
+                      | clave_valor                                                                 { /* reduction("claves_enum", "clave_valor"); */ }
                       ;
-clave_valor           : CTC_CADENA FLECHA expresion
+clave_valor           : CTC_CADENA FLECHA expresion                                                 { reduction("clave_valor", "CTC_CADENA => expresion"); }
                       ;
-campo_valor           : IDENTIFICADOR FLECHA expresion
+campo_valor           : IDENTIFICADOR FLECHA expresion                                              { reduction("campo_valor", "ID => expresion"); }
                       ;
 
 %%

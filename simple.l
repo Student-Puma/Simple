@@ -149,6 +149,7 @@ identifier  [a-zA-Z_][a-zA-Z0-9_]*
                                       if(es("--"))              return DEC;
                                       if(es("->"))              return DESPI;
                                       if(es("<-"))              return DESPD;
+                                      if(es("~="))              return NEQ;
                                       if(es("<="))              return LEQ;
                                       if(es(">="))              return GEQ;
                                       if(es("/\\"))             return AND;
