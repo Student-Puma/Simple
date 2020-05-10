@@ -1,6 +1,0 @@
-programa test;
-
-principio
-datos : tabla(1..n) de entero;
-
-fin

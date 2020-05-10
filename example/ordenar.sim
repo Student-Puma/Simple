@@ -26,12 +26,10 @@ subprograma ordenarQuicksort
 
     mientras izdo<=dcho
       mientras datos[izdo]<pivote /\ izdo<limDcho
-        ; ## TODO
         izdo := izdo+1;
       fin bucle
 
       mientras pivote<datos[dcho] /\ dcho > limIzdo
-        ; ## TODO
         dcho := dcho-1;
       fin bucle
 
@@ -56,7 +54,6 @@ subprograma ordenarQuicksort
   subprograma llenarLista (datos : referencia tabla(1..n) de entero; n : valor entero)
   principio
     repetir i en 1 .. n
-      ; ## TODO
       datos[i] := aleatorio(1,100);
     fin bucle
   fin subprograma
@@ -124,7 +121,6 @@ subprograma ordenarMonticulos
 principio
 
   repetir i en 1 .. n
-    ## TODO
     temporal := datos[i+1];
     datos[i+1] := datos[1];
     datos[1] := temporal;

@@ -1,4 +1,32 @@
 %{
+
+  /*********************************************
+  *    Autor: Diego Enrique Fontán Lorenzo
+  *
+  * - Compilación: make clean ; make
+  * 
+  * - Conflictos:
+  *   ~ simple.y: warning: 1 shift/reduce conflict
+  *     Explicación:
+  *       Se trata de un conflicto en el estado 149
+  *       producido por el token IDENTIFICADOR al verse
+  *       en un bucle dentro de la expresión primario y objeto,
+  *       por lo que es un problema derivado de la precedencia.
+  *
+  * - Ejecución:
+  *   ~ ejemplo.sim -> Correcto
+  *   ~ misc.sim    -> Correcto
+  *   ~ ordenar.sim -> Incorrecto
+  *     Explicación:
+  *       Sólamente salta syntax error cuando nos encontramos en un bucle.
+  *       Al evaluar la expresión de la cláusula, si la siguiente línea es
+  *       una instruccion_asignacion, el programa falla.
+  *       En el caso de que haya cualquier otra instrucción entre la expresión
+  *       y la instr asignación, por ejemplo una instrucción vacía, funciona
+  *       perfectamente.
+  *
+  */
+
   #include <stdio.h>
   #include <stdlib.h>
   #include <string.h>
@@ -65,6 +93,7 @@
 
 programa              : definicion_programa                                                         { fprintf(stdout, "EXITO :: programa -> definicion_programa\n"); }
                       | definicion_libreria                                                         { fprintf(stdout, "EXITO :: programa -> definicion_libreria\n"); }
+                      | error                                                                       { yyerror; }
                       ;
 definicion_programa   : PROGRAMA IDENTIFICADOR ';' codigo_programa                                  { reduction("definicion_programa", "PROGRAMA ID ; codigo_programa"); }
                       ;
