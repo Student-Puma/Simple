@@ -236,14 +236,16 @@ llamada_subprograma   : nombre_libreria '(' definicion_parametros ')'           
 instrucciones         : instruccion instrucciones                                                   { reduction("instrucciones", "instruccion instrucciones"); }
                       | instruccion                                                                 { reduction("instrucciones", "instruccion"); }
                       ;
-instruccion           : instr_llamada                                                               { reduction("instruccion", "instr_llamada"); }
+instruccion           : instr_asignacion                                                            { reduction("instruccion", "instr_asignacion"); }
                       | instr_bucle                                                                 { reduction("instruccion", "instr_bucle"); }
                       | instr_capturar                                                              { reduction("instruccion", "instr_capturar"); }
-                      | instr_asignacion                                                            { reduction("instruccion", "instr_asignacion"); }
-                      | instr_lanzar                                                                { reduction("instruccion", "instr_lanzar"); }
+                      | instr_casos                                                                 { reduction("instruccion", "instr_casos"); }
                       | instr_devolver                                                              { reduction("instruccion", "instr_devolver"); }
-                      | instr_vacia                                                                 { reduction("instruccion", "instr_vacia"); }
+                      | instr_interrupcion                                                          { reduction("instruccion", "instr_interrupcion"); }
+                      | instr_lanzar                                                                { reduction("instruccion", "instr_lanzar"); }
+                      | instr_llamada                                                               { reduction("instruccion", "instr_llamada"); }
                       | instr_si                                                                    { reduction("instruccion", "instr_si"); }
+                      | instr_vacia                                                                 { reduction("instruccion", "instr_vacia"); }
                       ;
 instr_llamada         : llamada_subprograma ';'                                                     { reduction("instr_llamada", "llamada_subprograma ;"); }
                       ;
@@ -258,11 +260,31 @@ instr_lanzar          : LANZA nombre_libreria ';'                               
 instr_devolver        : DEVOLVER expresion ';'                                                      { reduction("instr_devolver", "DEVOLVER expresion ;"); }
                       | DEVOLVER ';'                                                                { reduction("instr_devolver", "DEVOLVER ;"); }
                       ;
+instr_interrupcion    : SIGUIENTE CUANDO expresion                                                  { reduction("instr_interrupcion", "SIGUIENTE CUANDO expresion"); }
+                      | SIGUIENTE                                                                   { reduction("instr_interrupcion", "SIGUIENTE"); }
+                      | SALIR DE IDENTIFICADOR CUANDO expresion                                     { reduction("instr_interrupcion", "SALIR DE ID CUANDO expresion"); }
+                      | SALIR DE IDENTIFICADOR                                                      { reduction("instr_interrupcion", "SALIR DE ID"); }
+                      | SALIR CUANDO expresion                                                      { reduction("instr_interrupcion", "SALIR CUANDO expresion"); }
+                      ;
 instr_vacia           : ';'                                                                         { reduction("instr_vacia", ";"); }
                       ;
 
 /************************* BUCLES Y CONDICIONALES *************************/
 
+instr_casos           : CASOS expresion ES casos FIN CASOS                                          { reduction("instr_casos", "CASOS expresion ES casos FIN CASOS"); }
+                      ;
+casos                 : caso casos                                                                  { /* reduction("casos", "caso casos"); */ }
+                      | caso                                                                        { /* reduction("casos", "caso"); */ }
+                      ;
+caso                  : CUANDO entradas FLECHA instrucciones                                        { reduction("caso", "CUANDO entradas => instrucciones"); }
+                      ;
+entradas              : entradas ':' entrada                                                        { /* reduction("entradas", "entradas : entrada"); */ }
+                      | entrada                                                                     { /* reduction("entradas", "entrada"); */ }
+                      ;
+entrada               : expresion DOS_PUNTOS expresion                                              { reduction("entrada", "expresion .. expresion"); }
+                      | expresion                                                                   { reduction("entrada", "expresion"); }
+                      | OTRO                                                                        { reduction("entrada", "OTRO"); }
+                      ;
 instr_si              : SI expresion ENTONCES instrucciones SINO instrucciones FIN SI               { reduction("instr_si", "SI expresion ENTONCES instrucciones SINO instrucciones FIN SI"); }
                       | SI expresion ENTONCES instrucciones FIN SI                                  { reduction("instr_si", "SI expresion ENTONCES instruccionesFIN SI"); }
                       ;
@@ -387,8 +409,8 @@ literal               : VERDADERO                                               
                       | CTC_ENTERA                                                                  { reduction("literal", "CTC_ENTERA"); }
                       | CTC_REAL                                                                    { reduction("literal", "CTC_REAL"); }
                       ;
-campos                : declaracion_variable ';' campos                                             { /* reduction("campos", "declaracion_variable ; campos"); */ }
-                      | declaracion_variable                                                        { /* reduction("campos", "declaracion_variable"); */ }
+campos                : declaracion_variable campos                                             { /* reduction("campos", "declaracion_variable ; campos"); */ }
+                      | declaracion_variable                                                       { /* reduction("campos", "declaracion_variable"); */ }
                       ;
 
 enumeracion           : '[' expresion_condicional clausulas_iteracion ']'                           { reduction("enumeracion", "[ expresion_condicional clausulas_iteracion ]"); }
