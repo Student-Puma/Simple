@@ -124,7 +124,7 @@ subprograma ordenarMonticulos
 principio
 
   repetir i en 1 .. n
-    ; ## TODO
+    ## TODO
     temporal := datos[i+1];
     datos[i+1] := datos[1];
     datos[1] := temporal;

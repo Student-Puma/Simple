@@ -14,7 +14,7 @@
   { for(char *p = yytext; *p; ++p) *p = *p>0x60 && *p<0x7b ? *p - 0x20 : *p; }
 
   void logging(char * type)
-  { if(enabledlogging) fprintf(stdout, ">> linea %d, %s: %s\n", yylineno, type, yytext); }
+  { if(enabledlogging) fprintf(stdout, "linea %d, %s: %s\n", yylineno, type, yytext); }
 %}
 
 %option yylineno

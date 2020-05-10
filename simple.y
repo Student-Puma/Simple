@@ -45,7 +45,6 @@
 
 %token CTC_CADENA CTC_CARACTER CTC_ENTERA CTC_REAL FALSO VERDADERO
 
-
 %left DESPD DESPI
 %left '+' '-'
 %left '*' '/' RESTO
@@ -58,7 +57,7 @@
 %nonassoc UMINUS
 
 %left ','
-%left ASIGNACION ASIG_SUMA ASIG_RESTA ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
+%nonassoc ASIGNACION ASIG_SUMA ASIG_RESTA ASIG_MULT ASIG_DIV ASIG_RESTO ASIG_POT ASIG_DESPI ASIG_DESPD
 
 %%
 
@@ -444,7 +443,7 @@ campo_valor           : IDENTIFICADOR FLECHA expresion                          
 
 void reduction(char * a, char * b) {
   fflush(stdout);
-  fprintf(stdout, "\t%s -> %s\n", a, b);
+  fprintf(stdout, " · %s -> %s\n", a, b);
 }
 
 int yyerror (char *msg) {
