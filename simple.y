@@ -320,45 +320,45 @@ expresion_condicional : SI expresion ENTONCES expresion SINO expresion          
 expresion             : or_logico                                                                   { ; }
                       ;
 or_logico             : and_logico                                                                  { ; }
-		                  | expresion OR and_logico		                                                  { reduction("expresion", "expresion \\/ expresion"); }
-		                  ;
+                      | expresion OR and_logico		                                                  { reduction("expresion", "expresion \\/ expresion"); }
+                      ;
 and_logico            : negacion                                                                    { ; }
-		                  | and_logico AND negacion		                                                  { reduction("expresion", "expresion /\\ expresion"); }
-		                  ;
+                      | and_logico AND negacion		                                                  { reduction("expresion", "expresion /\\ expresion"); }
+                      ;
 negacion              : comparacion                                                                 { ; }
-		                  | '~' comparacion                                                             { reduction("expresion", "~ expresion"); }
-		                  ;
+                      | '~' comparacion                                                             { reduction("expresion", "~ expresion"); }
+                      ;
 comparacion           : desplazamiento                                                              { ; }
-		                  | desplazamiento '>' desplazamiento                                           { reduction("expresion", "expresion > expresion"); }
-		                  | desplazamiento '<' desplazamiento                                           { reduction("expresion", "expresion < expresion"); }
-		                  | desplazamiento '=' desplazamiento                                           { reduction("expresion", "expresion = expresion"); }
-		                  | desplazamiento LEQ desplazamiento                                           { reduction("expresion", "expresion <= expresion"); }
-		                  | desplazamiento GEQ desplazamiento                                           { reduction("expresion", "expresion >= expresion"); }
-		                  | desplazamiento NEQ desplazamiento                                           { reduction("expresion", "expresion ~= expresion"); }
-		                  ;
+                      | desplazamiento '>' desplazamiento                                           { reduction("expresion", "expresion > expresion"); }
+                      | desplazamiento '<' desplazamiento                                           { reduction("expresion", "expresion < expresion"); }
+                      | desplazamiento '=' desplazamiento                                           { reduction("expresion", "expresion = expresion"); }
+                      | desplazamiento LEQ desplazamiento                                           { reduction("expresion", "expresion <= expresion"); }
+                      | desplazamiento GEQ desplazamiento                                           { reduction("expresion", "expresion >= expresion"); }
+                      | desplazamiento NEQ desplazamiento                                           { reduction("expresion", "expresion ~= expresion"); }
+                      ;
 desplazamiento        :	suma_resta                                                                  { ; }
-		                  | desplazamiento DESPD suma_resta                                             { reduction("expresion", "expresion -> expresion"); }
-		                  | desplazamiento DESPI suma_resta                                             { reduction("expresion", "expresion <- expresion"); }
-		                  ;
+                      | desplazamiento DESPD suma_resta                                             { reduction("expresion", "expresion -> expresion"); }
+                      | desplazamiento DESPI suma_resta                                             { reduction("expresion", "expresion <- expresion"); }
+                      ;
 suma_resta            : multi_div                                                                   { ; }
-		                  | suma_resta '-' multi_div                                                    { reduction("expresion", "expresion - expresion"); }
-		                  | suma_resta '+' multi_div                                                    { reduction("expresion", "expresion + expresion"); }
-		                  ;
+                      | suma_resta '-' multi_div                                                    { reduction("expresion", "expresion - expresion"); }
+                      | suma_resta '+' multi_div                                                    { reduction("expresion", "expresion + expresion"); }
+                      ;
 multi_div             : potencia                                                                    { ; }
-		                  | multi_div '*' potencia                                                      { reduction("expresion", "expresion * expresion"); }
-		                  | multi_div '/' potencia                                                      { reduction("expresion", "expresion / expresion"); }
-		                  | multi_div RESTO potencia                                                    { reduction("expresion", "expresion \\ expresion"); }
-		                  ;
+                      | multi_div '*' potencia                                                      { reduction("expresion", "expresion * expresion"); }
+                      | multi_div '/' potencia                                                      { reduction("expresion", "expresion / expresion"); }
+                      | multi_div RESTO potencia                                                    { reduction("expresion", "expresion \\ expresion"); }
+                      ;
 potencia              : expresion_posfija                                                           { ; }
-		                  | expresion_posfija POT potencia                                              { reduction("expresion", "expresion ^ expresion"); }
-		                  ;
+                      | expresion_posfija POT potencia                                              { reduction("expresion", "expresion ^ expresion"); }
+                      ;
 expresion_posfija     : expresion_unaria                                                            { ; }
-		                  | expresion_unaria INC                                                        { reduction("expresion", "expresion ++"); }
+                      | expresion_unaria INC                                                        { reduction("expresion", "expresion ++"); }
                       | expresion_unaria DEC                                                        { reduction("expresion", "expresion --"); }
-		                  ;
+                      ;
 expresion_unaria      : primario	                                                                  { reduction("expresion", "primario"); }		
-		                  | '-' primario %prec UMINUS	                                                  { reduction("expresion", "- primario"); }
-		                  ;
+                      | '-' primario %prec UMINUS	                                                  { reduction("expresion", "- primario"); }
+                      ;
 
 /******************************* PRIMARIOS ********************************/
 
